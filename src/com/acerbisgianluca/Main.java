@@ -45,7 +45,7 @@ public class Main {
 		int maxDur = 0, dur;
 		try {
 			for (Task t : tasks)
-				if ((dur = totalDuration(t)) > maxDur)
+				if ((dur = totalDurationLate(t, t)) > maxDur)
 					maxDur = dur;
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
@@ -74,7 +74,7 @@ public class Main {
 		return maxDuration + t.getDuration();
 	}
 
-	/*private static int totalDurationLate(Task t, Task parent){
+	private static int totalDurationLate(Task t, Task parent) throws Exception {
 		if(t.getDependencies().get(0).equalsIgnoreCase("")){
 			return t.getDuration();
 		}
@@ -93,7 +93,7 @@ public class Main {
 		}
 
 		return maxDuration + t.getDuration();
-	}*/
+	}
 
 	private static Task getTaskByName(String name) throws Exception {
 		for (Task t : tasks)
