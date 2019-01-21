@@ -51,17 +51,25 @@ public class Main {
 			System.exit(0);
 		}
 
+		fillParent();
+
 		int maxDur = 0, dur;
 		try {
 			// Mode 1 è quella di default e viene chiamata anche se viene inserito un numero diverso sia da 1 che da 2!
 			if (mode == 2)
-				for (Task t2 : tasks)
+				for (Task t2 : tasks) {
 					if ((dur = totalDurationLate(t2, t2)) > maxDur)
 						maxDur = dur;
 					else
 						for (Task t1 : tasks)
 							if ((dur = totalDuration(t1)) > maxDur)
 								maxDur = dur;
+				}
+			else
+				for (Task t1 : tasks)
+					if ((dur = totalDuration(t1)) > maxDur)
+						maxDur = dur;
+
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		}
@@ -72,16 +80,18 @@ public class Main {
 	}
 
 	private static int totalDuration(Task t) throws Exception {
-		if (t.getDependencies().get(0).equalsIgnoreCase(""))
+		if (t.getDependencies().get(0).equalsIgnoreCase("")) {
 			return t.getDuration();
+		}
 
 		Task tDep;
 		int maxDuration = 0, dur;
 		for (String taskName : t.getDependencies()) {
 			tDep = Main.getTaskByName(taskName);
 			if ((dur = totalDuration(tDep)) > maxDuration) {
-				if (!t.getStart().getTime().after(tDep.getEnd().getTime()))
+				if (!t.getStart().getTime().after(tDep.getEnd().getTime())) {
 					t.setEarlyStart(tDep.getEnd());
+				}
 				maxDuration = dur;
 			}
 		}
@@ -90,17 +100,28 @@ public class Main {
 	}
 
 	private static int totalDurationLate(Task t, Task parent) throws Exception {
-		if(t.getDependencies().get(0).equalsIgnoreCase("")){
+		if (t.getDependencies().get(0).equalsIgnoreCase("")) {
+
+			GregorianCalendar best = parent.getStart();
+			for (Task t1 : t.getParents()) {
+				if (t1.getStart().before(best))
+					best = t1.getStart();
+			}
+			if (!t.getEnd().after(best))
+				t.setLateFinish(best);
+
+
 			return t.getDuration();
 		}
 
 		Task tDep;
 		int maxDuration = 0, dur;
-		for(String taskName : t.getDependencies()){
+		for (String taskName : t.getDependencies()) {
 			tDep = Main.getTaskByName(taskName);
-			if((dur = totalDurationLate(tDep, t)) > maxDuration) {
-				if (t.getEnd().getTime().after(parent.getStart().getTime()))
+			if ((dur = totalDurationLate(tDep, t)) > maxDuration) {
+				if (t.getEnd().getTime().before(parent.getStart().getTime())) {
 					t.setLateFinish(parent.getStart());
+				}
 				maxDuration = dur;
 			}
 		}
@@ -109,10 +130,19 @@ public class Main {
 	}
 
 	private static Task getTaskByName(String name) throws Exception {
-		for (Task t : tasks)
-			if (t.getName().equalsIgnoreCase(name))
+		for (Task t : tasks) {
+			if (t.getName().equalsIgnoreCase(name)) {
 				return t;
+			}
+		}
 
 		throw new Exception("Attività non trovata!");
+	}
+
+	private static void fillParent() {
+		for (Task t : tasks)
+			for (Task t1 : tasks)
+				if (t1.getDependencies().contains(t.getName()))
+					t.addParent(t1);
 	}
 }
