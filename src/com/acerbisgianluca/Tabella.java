@@ -8,10 +8,6 @@ import java.util.List;
 public class Tabella extends javax.swing.JFrame {
 
 	private DefaultTableModel model;
-	// Variables declaration - do not modify//GEN-BEGIN:variables
-	private javax.swing.JPanel jPanel1;
-	private javax.swing.JScrollPane jScrollPane1;
-	private javax.swing.JTable table;
 
 	/**
 	 * Creates new form Tabella
@@ -42,14 +38,14 @@ public class Tabella extends javax.swing.JFrame {
 
 				},
 				new String[]{
-						"Nome", "Durata", "Inizio", "Fine"
+						"Nome", "Durata", "Early Start", "Early Finish", "Late Start", "Late Finish"
 				}
 		) {
 			Class[] types = new Class[]{
-					java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+					java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
 			};
 			boolean[] canEdit = new boolean[]{
-					false, false, false, false
+					false, false, false, false, false, false
 			};
 
 			public Class getColumnClass(int columnIndex) {
@@ -99,9 +95,12 @@ public class Tabella extends javax.swing.JFrame {
 		pack();
 	}// </editor-fold>//GEN-END:initComponents
 
-	public void showResult(List<Task> lista) {
-		for (Task t : lista) {
-			model.addRow(new Object[]{t.getName(), t.getDuration(), formatDate(t.getStart()), formatDate(t.getEnd())});
+	public void showResult(List<Task> esef, List<Task> lslf) {
+		Task t, t1;
+		for (int i = 0; i < esef.size(); i++) {
+			t = esef.get(i);
+			t1 = lslf.get(i);
+			model.addRow(new Object[]{t.getName(), t.getDuration(), formatDate(t.getStart()), formatDate(t.getEnd()), formatDate(t1.getStart()), formatDate(t1.getEnd())});
 		}
 	}
 
@@ -111,5 +110,10 @@ public class Tabella extends javax.swing.JFrame {
 		String dateFormatted = fmt.format(calendar.getTime());
 		return dateFormatted;
 	}
-	// End of variables declaration//GEN-END:variables
+
+	// Variables declaration - do not modify
+	private javax.swing.JPanel jPanel1;
+	private javax.swing.JScrollPane jScrollPane1;
+	private javax.swing.JTable table;
+	// End of variables declaration
 }
