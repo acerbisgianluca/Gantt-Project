@@ -4,18 +4,15 @@ import java.util.*;
 
 public class Main {
 
-	private static List<Task> tasks;
+	private static List<Task> tasksESEF;
+	private static List<Task> tasksLSLF;
 
 	public static void main(String[] args) {
 		Scanner scan = new Scanner(System.in);
-		tasks = new ArrayList<>();
+		tasksESEF = new ArrayList<>();
+		tasksLSLF = new ArrayList<>();
 
-		int mode = 1;
 		try {
-			// Modalità
-			System.out.print("Modalità: 1 (default) - Early Start/Early Finish\t2- Late Start/Late Finish (digita 1 o 2): ");
-			mode = scan.nextInt();
-
 			// Numero di attività
 			System.out.print("Quante attività ci sono (numero intero)? ");
 			int nTasks = scan.nextInt();
@@ -44,7 +41,8 @@ public class Main {
 				System.out.print("- Dipendenze della attività " + (i + 1) + " separate dalla virgola: ");
 				dependencies = scan.nextLine().trim().replaceAll(" ", "").split(",");
 
-				tasks.add(new Task(name, gc, duration, Arrays.asList(dependencies)));
+				tasksESEF.add(new Task(name, gc, duration, Arrays.asList(dependencies)));
+				tasksLSLF.add(new Task(name, gc, duration, Arrays.asList(dependencies)));
 			}
 		} catch (InputMismatchException ex) {
 			System.out.println("Inserisci un intero!");
@@ -55,28 +53,24 @@ public class Main {
 
 		int maxDur = 0, dur;
 		try {
-			// Mode 1 è quella di default e viene chiamata anche se viene inserito un numero diverso sia da 1 che da 2!
-			if (mode == 2)
-				for (Task t2 : tasks) {
-					if ((dur = totalDurationLate(t2, t2)) > maxDur)
-						maxDur = dur;
-					else
-						for (Task t1 : tasks)
-							if ((dur = totalDuration(t1)) > maxDur)
-								maxDur = dur;
-				}
-			else
-				for (Task t1 : tasks)
-					if ((dur = totalDuration(t1)) > maxDur)
-						maxDur = dur;
-
+			for (Task t2 : tasksLSLF) {
+				if ((dur = totalDurationLate(t2, t2)) > maxDur)
+					maxDur = dur;
+				else
+					for (Task t1 : tasksLSLF)
+						if ((dur = totalDuration(t1)) > maxDur)
+							maxDur = dur;
+			}
+			for (Task t1 : tasksESEF)
+				if ((dur = totalDuration(t1)) > maxDur)
+					maxDur = dur;
 		} catch (Exception ex) {
 			System.out.println(ex.getMessage());
 		}
 
 		System.out.println("I giorni minimi necessari per completare tutte le attività sono " + maxDur);
 
-		new Tabella().showResult(tasks);
+		new Tabella().showResult(tasksESEF, tasksLSLF);
 	}
 
 	private static int totalDuration(Task t) throws Exception {
@@ -87,7 +81,7 @@ public class Main {
 		Task tDep;
 		int maxDuration = 0, dur;
 		for (String taskName : t.getDependencies()) {
-			tDep = Main.getTaskByName(taskName);
+			tDep = Main.getTaskByName(taskName, false);
 			if ((dur = totalDuration(tDep)) > maxDuration) {
 				if (!t.getStart().getTime().after(tDep.getEnd().getTime())) {
 					t.setEarlyStart(tDep.getEnd());
@@ -117,7 +111,7 @@ public class Main {
 		Task tDep;
 		int maxDuration = 0, dur;
 		for (String taskName : t.getDependencies()) {
-			tDep = Main.getTaskByName(taskName);
+			tDep = Main.getTaskByName(taskName, true);
 			if ((dur = totalDurationLate(tDep, t)) > maxDuration) {
 				if (t.getEnd().getTime().before(parent.getStart().getTime())) {
 					t.setLateFinish(parent.getStart());
@@ -129,8 +123,8 @@ public class Main {
 		return maxDuration + t.getDuration();
 	}
 
-	private static Task getTaskByName(String name) throws Exception {
-		for (Task t : tasks) {
+	private static Task getTaskByName(String name, boolean cloned) throws Exception {
+		for (Task t : cloned ? tasksLSLF : tasksESEF) {
 			if (t.getName().equalsIgnoreCase(name)) {
 				return t;
 			}
@@ -140,8 +134,12 @@ public class Main {
 	}
 
 	private static void fillParent() {
-		for (Task t : tasks)
-			for (Task t1 : tasks)
+		for (Task t : tasksESEF)
+			for (Task t1 : tasksESEF)
+				if (t1.getDependencies().contains(t.getName()))
+					t.addParent(t1);
+		for (Task t : tasksLSLF)
+			for (Task t1 : tasksLSLF)
 				if (t1.getDependencies().contains(t.getName()))
 					t.addParent(t1);
 	}

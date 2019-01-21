@@ -17,11 +17,11 @@ public class Task implements Cloneable {
 
     public Task(String name, GregorianCalendar start, int duration, List<String> dependencies) {
         this.name = name;
-        this.start = start;
+        this.start = (GregorianCalendar) start.clone();
         this.duration = duration;
         this.dependencies = dependencies;
         this.parents = new ArrayList<>();
-        this.end = (GregorianCalendar) start.clone();
+        this.end = (GregorianCalendar) this.start.clone();
         this.end.add(Calendar.DAY_OF_MONTH, duration - 1);
     }
 
