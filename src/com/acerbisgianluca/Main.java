@@ -2,11 +2,28 @@ package com.acerbisgianluca;
 
 import java.util.*;
 
+/**
+ * E' la classe principale che non viene instanziata e che contiene i metodi principali.
+ * Gestisce tutta la comunicazione con l'utente raccogliendo tutti i dati sulle attività.
+ */
 public class Main {
 
+	/**
+	 * La lista di attività su cui lavora l'algoritmo Early Start / Early Finish.
+	 */
 	private static List<Task> tasksESEF;
+	/**
+	 * La lista di attività su cui lavora l'algoritmo Late Start / Late Finish.
+	 */
 	private static List<Task> tasksLSLF;
 
+	/**
+	 * Si occupa di instanziare gli attributi e gli oggetti necessari alla raccolta delle informazioni riguardanti le attività.
+	 * Inoltre esegue il metodo che organizza attività dipendenti e le successive.
+	 * Infine stampa la durata totale del ciclo di attività ed apre una finestra {@link com.acerbisgianluca.Tabella}.
+	 *
+	 * @param args I parametri passati all'interno della linea di comando.
+	 */
 	public static void main(String[] args) {
 		Scanner scan = new Scanner(System.in);
 		tasksESEF = new ArrayList<>();
@@ -47,6 +64,9 @@ public class Main {
 		} catch (InputMismatchException ex) {
 			System.out.println("Inserisci un intero!");
 			System.exit(0);
+		} catch (ArrayIndexOutOfBoundsException ex) {
+			System.out.println("Inserisci la data nel formato corretto!");
+			System.exit(0);
 		}
 
 		fillDependencies();
@@ -56,6 +76,11 @@ public class Main {
 		new Tabella().showResult(tasksESEF, tasksLSLF);
 	}
 
+	/**
+	 * Esegue entrambi gli algoritmi ES/EF e LS/LF.
+	 *
+	 * @return La durata totale del ciclo di attività.
+	 */
 	private static int algorithm() {
 		int maxDur = 0, dur;
 		// Late Start Late Finish
@@ -75,6 +100,12 @@ public class Main {
 		return maxDur;
 	}
 
+	/**
+	 * E' il metodo ricorsivo che viene utilizzato per l'algoritmo ES/EF.
+	 *
+	 * @param t L'attività analizzata.
+	 * @return La durata dell'attività se non ha precedenze oppure la durata dell'attività più tutte le precedenti.
+	 */
 	private static int totalDuration(Task t) {
 		if (t.getDependencies().isEmpty()) {
 			return t.getDuration();
@@ -93,6 +124,13 @@ public class Main {
 		return maxDuration + t.getDuration();
 	}
 
+	/**
+	 * E' il metodo ricorsivo che viene utilizzato per l'algoritmo LS/LF.
+	 *
+	 * @param t      L'attività analizzata.
+	 * @param parent L'attività successiva e che ha invocato precedente il metodo.
+	 * @return La durata dell'attività se non ha precedenze oppure la durata dell'attività più tutte le precedenti.
+	 */
 	private static int totalDurationLate(Task t, Task parent) {
 		if (t.getDependencies().isEmpty()) {
 
@@ -121,6 +159,9 @@ public class Main {
 		return maxDuration + t.getDuration();
 	}
 
+	/**
+	 * Si occupa di associare ad ogni attività le sue dipendenze e quelle successive.
+	 */
 	private static void fillDependencies() {
 		for (Task t : tasksESEF)
 			for (Task t1 : tasksESEF)

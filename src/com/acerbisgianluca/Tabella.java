@@ -5,12 +5,19 @@ import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.List;
 
+/**
+ * Contiene un form che include un panel ed una tabella contenente i risultati dei 2 algoritmi descritti in {@link com.acerbisgianluca.Main}.
+ */
 public class Tabella extends javax.swing.JFrame {
 
 	private DefaultTableModel model;
+	// Variables declaration - do not modify
+	private javax.swing.JPanel panel;
+	private javax.swing.JScrollPane scrollPane;
+	private javax.swing.JTable table;
 
 	/**
-	 * Creates new form Tabella
+	 * Crea un nuovo form Tabella.
 	 */
 	public Tabella() {
 		initComponents();
@@ -27,11 +34,13 @@ public class Tabella extends javax.swing.JFrame {
 	// <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
 	private void initComponents() {
 
-		jPanel1 = new javax.swing.JPanel();
-		jScrollPane1 = new javax.swing.JScrollPane();
+		panel = new javax.swing.JPanel();
+		scrollPane = new javax.swing.JScrollPane();
 		table = new javax.swing.JTable();
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+		//table.setAutoCreateRowSorter(true);
 
 		table.setModel(new javax.swing.table.DefaultTableModel(
 				new Object[][]{
@@ -42,7 +51,7 @@ public class Tabella extends javax.swing.JFrame {
 				}
 		) {
 			Class[] types = new Class[]{
-					java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+					java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
 			};
 			boolean[] canEdit = new boolean[]{
 					false, false, false, false, false, false
@@ -56,22 +65,22 @@ public class Tabella extends javax.swing.JFrame {
 				return canEdit[columnIndex];
 			}
 		});
-		jScrollPane1.setViewportView(table);
+		scrollPane.setViewportView(table);
 
-		javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-		jPanel1.setLayout(jPanel1Layout);
+		javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(panel);
+		panel.setLayout(jPanel1Layout);
 		jPanel1Layout.setHorizontalGroup(
 				jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 						.addGroup(jPanel1Layout.createSequentialGroup()
 								.addContainerGap()
-								.addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 632, Short.MAX_VALUE)
+								.addComponent(scrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 632, Short.MAX_VALUE)
 								.addContainerGap())
 		);
 		jPanel1Layout.setVerticalGroup(
 				jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 						.addGroup(jPanel1Layout.createSequentialGroup()
 								.addContainerGap()
-								.addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+								.addComponent(scrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
 								.addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 		);
 
@@ -81,20 +90,26 @@ public class Tabella extends javax.swing.JFrame {
 				layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 						.addGroup(layout.createSequentialGroup()
 								.addContainerGap()
-								.addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addContainerGap())
 		);
 		layout.setVerticalGroup(
 				layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 						.addGroup(layout.createSequentialGroup()
 								.addContainerGap()
-								.addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addContainerGap())
 		);
 
 		pack();
 	}// </editor-fold>//GEN-END:initComponents
 
+	/**
+	 * Crea le righe all'interno della tabella indicando nome, durata, data di inizio ES, data di fine EF, data di inizio LS e data di fine LF di ogni attività.
+	 *
+	 * @param esef La lista con le attività aggiornate dopo l'esecuzione dell'algoritmo ES/EF.
+	 * @param lslf La lista con le attività aggiornate dopo l'esecuzione dell'algoritmo LS/LF.
+	 */
 	public void showResult(List<Task> esef, List<Task> lslf) {
 		Task t, t1;
 		for (int i = 0; i < esef.size(); i++) {
@@ -104,16 +119,17 @@ public class Tabella extends javax.swing.JFrame {
 		}
 	}
 
+	/**
+	 * Ritorna una stringa in formato dd/MM/yyyy da una data in {@link java.util.GregorianCalendar}.
+	 *
+	 * @param calendar La data da cui estrarre la stringa.
+	 * @return La data in formato leggibile.
+	 */
 	private String formatDate(GregorianCalendar calendar) {
 		SimpleDateFormat fmt = new SimpleDateFormat("dd/MMM/yyyy");
 		fmt.setCalendar(calendar);
 		String dateFormatted = fmt.format(calendar.getTime());
 		return dateFormatted;
 	}
-
-	// Variables declaration - do not modify
-	private javax.swing.JPanel jPanel1;
-	private javax.swing.JScrollPane jScrollPane1;
-	private javax.swing.JTable table;
 	// End of variables declaration
 }
