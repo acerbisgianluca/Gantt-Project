@@ -10,17 +10,20 @@ public class Task implements Cloneable {
 
     private final String name;
     private final int duration;
-    private final List<String> dependencies;
+    private final List<String> dependenciesStr;
     private final List<Task> parents;
+    private final List<Task> dependencies;
     private GregorianCalendar start;
     private GregorianCalendar end;
+
 
     public Task(String name, GregorianCalendar start, int duration, List<String> dependencies) {
         this.name = name;
         this.start = (GregorianCalendar) start.clone();
         this.duration = duration;
-        this.dependencies = dependencies;
+        this.dependenciesStr = dependencies;
         this.parents = new ArrayList<>();
+        this.dependencies = new ArrayList<>();
         this.end = (GregorianCalendar) this.start.clone();
         this.end.add(Calendar.DAY_OF_MONTH, duration - 1);
     }
@@ -55,6 +58,26 @@ public class Task implements Cloneable {
         return duration;
     }
 
+    public List<String> getDependenciesStr() {
+        return dependenciesStr;
+    }
+
+    public void addDependency(Task t) {
+        dependencies.add(t);
+    }
+
+    public List<Task> getDependencies() {
+        return dependencies;
+    }
+
+    public void addParent(Task t) {
+        parents.add(t);
+    }
+
+    public List<Task> getParents() {
+        return parents;
+    }
+
     @Override
     public String toString() {
         return "Task{"
@@ -65,22 +88,10 @@ public class Task implements Cloneable {
                 + '}';
     }
 
-    public List<String> getDependencies() {
-        return dependencies;
-    }
-
     private String formatDate(GregorianCalendar calendar) {
         SimpleDateFormat fmt = new SimpleDateFormat("dd/MMM/yyyy");
         fmt.setCalendar(calendar);
         String dateFormatted = fmt.format(calendar.getTime());
         return dateFormatted;
-    }
-
-    public void addParent(Task t) {
-        parents.add(t);
-    }
-
-    public List<Task> getParents() {
-        return parents;
     }
 }

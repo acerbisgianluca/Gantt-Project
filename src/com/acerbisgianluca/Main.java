@@ -49,7 +49,7 @@ public class Main {
 			System.exit(0);
 		}
 
-		fillParent();
+		fillDependencies();
 
 		int maxDur = 0, dur;
 		try {
@@ -74,14 +74,12 @@ public class Main {
 	}
 
 	private static int totalDuration(Task t) throws Exception {
-		if (t.getDependencies().get(0).equalsIgnoreCase("")) {
+		if (t.getDependencies().isEmpty()) {
 			return t.getDuration();
 		}
 
-		Task tDep;
 		int maxDuration = 0, dur;
-		for (String taskName : t.getDependencies()) {
-			tDep = Main.getTaskByName(taskName, false);
+		for (Task tDep : t.getDependencies()) {
 			if ((dur = totalDuration(tDep)) > maxDuration) {
 				if (!t.getStart().getTime().after(tDep.getEnd().getTime())) {
 					t.setEarlyStart(tDep.getEnd());
@@ -94,7 +92,7 @@ public class Main {
 	}
 
 	private static int totalDurationLate(Task t, Task parent) throws Exception {
-		if (t.getDependencies().get(0).equalsIgnoreCase("")) {
+		if (t.getDependencies().isEmpty()) {
 
 			GregorianCalendar best = parent.getStart();
 			for (Task t1 : t.getParents()) {
@@ -108,10 +106,8 @@ public class Main {
 			return t.getDuration();
 		}
 
-		Task tDep;
 		int maxDuration = 0, dur;
-		for (String taskName : t.getDependencies()) {
-			tDep = Main.getTaskByName(taskName, true);
+		for (Task tDep : t.getDependencies()) {
 			if ((dur = totalDurationLate(tDep, t)) > maxDuration) {
 				if (t.getEnd().getTime().before(parent.getStart().getTime())) {
 					t.setLateFinish(parent.getStart());
@@ -123,24 +119,19 @@ public class Main {
 		return maxDuration + t.getDuration();
 	}
 
-	private static Task getTaskByName(String name, boolean cloned) throws Exception {
-		for (Task t : cloned ? tasksLSLF : tasksESEF) {
-			if (t.getName().equalsIgnoreCase(name)) {
-				return t;
-			}
-		}
-
-		throw new Exception("Attività non trovata!");
-	}
-
-	private static void fillParent() {
+	private static void fillDependencies() {
 		for (Task t : tasksESEF)
 			for (Task t1 : tasksESEF)
-				if (t1.getDependencies().contains(t.getName()))
-					t.addParent(t1);
+				if (t.getDependenciesStr().contains(t1.getName())) {
+					t.addDependency(t1);
+					t1.addParent(t);
+				}
+
 		for (Task t : tasksLSLF)
 			for (Task t1 : tasksLSLF)
-				if (t1.getDependencies().contains(t.getName()))
-					t.addParent(t1);
+				if (t.getDependenciesStr().contains(t1.getName())) {
+					t.addDependency(t1);
+					t1.addParent(t);
+				}
 	}
 }
