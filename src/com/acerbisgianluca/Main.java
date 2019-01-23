@@ -51,29 +51,31 @@ public class Main {
 
 		fillDependencies();
 
-		int maxDur = 0, dur;
-		try {
-			for (Task t2 : tasksLSLF) {
-				if ((dur = totalDurationLate(t2, t2)) > maxDur)
-					maxDur = dur;
-				else
-					for (Task t1 : tasksLSLF)
-						if ((dur = totalDuration(t1)) > maxDur)
-							maxDur = dur;
-			}
-			for (Task t1 : tasksESEF)
-				if ((dur = totalDuration(t1)) > maxDur)
-					maxDur = dur;
-		} catch (Exception ex) {
-			System.out.println(ex.getMessage());
-		}
-
-		System.out.println("I giorni minimi necessari per completare tutte le attività sono " + maxDur);
+		System.out.println("I giorni minimi necessari per completare tutte le attività sono " + algorithm());
 
 		new Tabella().showResult(tasksESEF, tasksLSLF);
 	}
 
-	private static int totalDuration(Task t) throws Exception {
+	private static int algorithm() {
+		int maxDur = 0, dur;
+		// Late Start Late Finish
+		for (Task t2 : tasksLSLF) {
+			if ((dur = totalDurationLate(t2, t2)) > maxDur)
+				maxDur = dur;
+			else
+				for (Task t1 : tasksLSLF)
+					if ((dur = totalDuration(t1)) > maxDur)
+						maxDur = dur;
+		}
+		maxDur = 0;
+		// Early Start Early Finish
+		for (Task t1 : tasksESEF)
+			if ((dur = totalDuration(t1)) > maxDur)
+				maxDur = dur;
+		return maxDur;
+	}
+
+	private static int totalDuration(Task t) {
 		if (t.getDependencies().isEmpty()) {
 			return t.getDuration();
 		}
@@ -91,7 +93,7 @@ public class Main {
 		return maxDuration + t.getDuration();
 	}
 
-	private static int totalDurationLate(Task t, Task parent) throws Exception {
+	private static int totalDurationLate(Task t, Task parent) {
 		if (t.getDependencies().isEmpty()) {
 
 			GregorianCalendar best = parent.getStart();
