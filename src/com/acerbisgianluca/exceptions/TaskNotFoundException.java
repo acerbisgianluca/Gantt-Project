@@ -5,5 +5,5 @@ public class TaskNotFoundException extends Exception {
     public TaskNotFoundException(String mex) {
         super(mex);
     }
-    
+
 }

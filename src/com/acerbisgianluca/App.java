@@ -4,6 +4,9 @@ import com.acerbisgianluca.exceptions.TaskAlreadyExistsException;
 import com.acerbisgianluca.exceptions.TaskNotFoundException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -24,6 +27,7 @@ public class App extends javax.swing.JFrame {
     private final Algorithm algorithm;
     private boolean editing;
     private String lastName;
+    private final DateTimeFormatter fmt;
 
     /**
      * Creates new form App
@@ -35,6 +39,7 @@ public class App extends javax.swing.JFrame {
         listDependencies.setModel(listModel);
         algorithm = new Algorithm();
         editing = false;
+        this.fmt = DateTimeFormatter.ofPattern("dd/MMM/yyyy");
         cleanFields(true);
         setRowSorter();
     }
@@ -240,8 +245,7 @@ public class App extends javax.swing.JFrame {
                 newESEF = algorithm.getTaskByName(this.lastName, true);
 
                 Date date = (Date) spnDate.getModel().getValue();
-                GregorianCalendar gc = new GregorianCalendar();
-                gc.setTime(date);
+                LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
                 int duration = (int) spnDuration.getModel().getValue();
 
@@ -257,8 +261,8 @@ public class App extends javax.swing.JFrame {
                     }
                 }
 
-                newLSLF.update(name, gc, duration);
-                newESEF.update(name, gc, duration);
+                newLSLF.update(name, localDate, duration);
+                newESEF.update(name, localDate, duration);
                 showResult();
 
                 int[] dependenciesIds = listDependencies.getSelectedIndices();
@@ -297,21 +301,20 @@ public class App extends javax.swing.JFrame {
             }
 
             String name = txtName.getText().trim();
+            if (name.equals("")) {
+                lblOutput.setText("Inserire il nome.");
+                return;
+            }
             taskExists(name);
 
             Date date = (Date) spnDate.getModel().getValue();
-            GregorianCalendar gc = new GregorianCalendar();
-            gc.setTime(date);
+            LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
             int duration = (int) spnDuration.getModel().getValue();
+            duration = duration < 1 ? 1 : duration;
 
-            if (name.equals("") || duration < 1) {
-                lblOutput.setText("Completare tutti i campi.");
-                return;
-            }
-
-            newESEF = new Task(name, gc, duration);
-            newLSLF = new Task(name, gc, duration);
+            newESEF = new Task(name, localDate, duration);
+            newLSLF = new Task(name, localDate, duration);
 
             int[] dependenciesIds = listDependencies.getSelectedIndices();
             for (int i : dependenciesIds) {
@@ -335,7 +338,7 @@ public class App extends javax.swing.JFrame {
 
             listModel.addElement(name);
 
-            tableModel.addRow(new Object[]{name, duration, dateToString(newESEF.getStart()), dateToString(newESEF.getEnd()), dateToString(newLSLF.getStart()), dateToString(newLSLF.getEnd())});
+            tableModel.addRow(new Object[]{name, duration, newESEF.getStart().format(this.fmt), newESEF.getEnd().format(this.fmt), newLSLF.getStart().format(this.fmt), newLSLF.getEnd().format(this.fmt)});
             cleanFields(false);
             realTimeRun();
         } catch (TaskNotFoundException | TaskAlreadyExistsException ex) {
@@ -351,10 +354,6 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_btnDeleteAllActionPerformed
 
     private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
-        /*if (executed) {
-            return;
-        }*/
-
         editing = true;
         lblAddTask.setText("Modifica l'attività selezionata");
         btnAdd.setText("Modifica");
@@ -365,7 +364,7 @@ public class App extends javax.swing.JFrame {
             this.lastName = name;
             txtName.setText(name);
             spnDuration.setValue((int) table.getValueAt(row, 1));
-            spnDate.setValue(stringToDate((String) table.getValueAt(row, 2)));
+            spnDate.setValue(java.sql.Date.valueOf(algorithm.getTaskByName(name, true).getDefaultDate()));
             Task tLSLF = algorithm.getTaskByName(name, false);
             List<Integer> selectedIndeces = new ArrayList<>();
             for (int i = 0; i < listModel.size(); i++) {
@@ -387,8 +386,6 @@ public class App extends javax.swing.JFrame {
             } else {
                 listDependencies.setSelectedIndices(selectedIndicesArr);
             }
-        } catch (ParseException ex) {
-            lblOutput.setText("Impossibile analizzare la data.");
         } catch (TaskNotFoundException ex) {
             lblOutput.setText(ex.getMessage());
         }
@@ -407,34 +404,8 @@ public class App extends javax.swing.JFrame {
         for (int i = 0; i < esef.size(); i++) {
             t = esef.get(i);
             t1 = lslf.get(i);
-            tableModel.addRow(new Object[]{t.getName(), t.getDuration(), dateToString(t.getStart()), dateToString(t.getEnd()), dateToString(t1.getStart()), dateToString(t1.getEnd())});
+            tableModel.addRow(new Object[]{t.getName(), t.getDuration(), t.getStart().format(this.fmt), t.getEnd().format(this.fmt), t1.getStart().format(this.fmt), t1.getEnd().format(this.fmt)});
         }
-    }
-
-    /**
-     * Ritorna una stringa in formato dd/MM/yyyy da una data in
-     * {@link java.util.GregorianCalendar}.
-     *
-     * @param calendar La data da cui estrarre la stringa.
-     * @return La data in formato leggibile.
-     */
-    private String dateToString(GregorianCalendar calendar) {
-        SimpleDateFormat fmt = new SimpleDateFormat("dd/MMM/yyyy");
-        fmt.setCalendar(calendar);
-        String dateFormatted = fmt.format(calendar.getTime());
-        return dateFormatted;
-    }
-
-    /**
-     * Ritorna una stringa in formato dd/MM/yyyy da una data in
-     * {@link java.util.GregorianCalendar}.
-     *
-     * @param calendar La data da cui estrarre la stringa.
-     * @return La data in formato leggibile.
-     */
-    private Date stringToDate(String dateStr) throws ParseException {
-        SimpleDateFormat fmt = new SimpleDateFormat("dd/MMM/yyyy");
-        return fmt.parse(dateStr);
     }
 
     private void cleanFields(boolean starting) {

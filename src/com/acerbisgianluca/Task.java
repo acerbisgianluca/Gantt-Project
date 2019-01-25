@@ -1,6 +1,7 @@
 package com.acerbisgianluca;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -30,15 +31,15 @@ public class Task {
     /**
      * La data di inizio.
      */
-    private GregorianCalendar defaultDate;
+    private LocalDate defaultDate;
     /**
      * La data di inizio.
      */
-    private GregorianCalendar start;
+    private LocalDate start;
     /**
      * La data di fine.
      */
-    private GregorianCalendar end;
+    private LocalDate end;
 
     /**
      * Crea un nuovo Task (attività).
@@ -47,15 +48,14 @@ public class Task {
      * @param start La sua data di inizio.
      * @param duration La sua durata.
      */
-    public Task(String name, GregorianCalendar start, int duration) {
+    public Task(String name, LocalDate start, int duration) {
         this.name = name;
-        this.start = (GregorianCalendar) start.clone();
-        this.defaultDate = (GregorianCalendar) start.clone();
+        this.start = start.plusDays(0);
+        this.defaultDate = start.plusDays(0);
         this.duration = duration;
         this.parents = new ArrayList<>();
         this.dependencies = new ArrayList<>();
-        this.end = (GregorianCalendar) this.start.clone();
-        this.end.add(Calendar.DAY_OF_MONTH, duration - 1);
+        this.end = start.plusDays(duration - 1);
     }
 
     /**
@@ -72,7 +72,7 @@ public class Task {
      *
      * @return La data di inizio.
      */
-    public GregorianCalendar getStart() {
+    public LocalDate getStart() {
         return start;
     }
 
@@ -83,11 +83,9 @@ public class Task {
      *
      * @param start La data di inizio di un'altra attività.
      */
-    public void setEarlyStart(GregorianCalendar start) {
-        this.start = (GregorianCalendar) start.clone();
-        this.start.add(Calendar.DAY_OF_MONTH, 1);
-        this.end = (GregorianCalendar) this.start.clone();
-        this.end.add(Calendar.DAY_OF_MONTH, this.duration - 1);
+    public void setEarlyStart(LocalDate start) {
+        this.start = start.plusDays(1);
+        this.end = this.start.plusDays(this.duration - 1);
     }
 
     /**
@@ -97,11 +95,9 @@ public class Task {
      *
      * @param finish La data di fine di un'altra attività.
      */
-    public void setLateFinish(GregorianCalendar finish) {
-        this.end = (GregorianCalendar) finish.clone();
-        this.end.add(Calendar.DAY_OF_MONTH, -1);
-        this.start = (GregorianCalendar) this.end.clone();
-        this.start.add(Calendar.DAY_OF_MONTH, -(this.duration - 1));
+    public void setLateFinish(LocalDate finish) {
+        this.end = finish.minusDays(1);
+        this.start = this.end.minusDays(this.duration - 1);
     }
 
     /**
@@ -109,7 +105,7 @@ public class Task {
      *
      * @return La data di fine.
      */
-    public GregorianCalendar getEnd() {
+    public LocalDate getEnd() {
         return end;
     }
 
@@ -167,25 +163,11 @@ public class Task {
     @Override
     public String toString() {
         return "Task{"
-                + "name='" + name + '\''
-                + ", duration=" + duration + '\''
-                + ", start='" + formatDate(this.start) + '\''
-                + ", end=" + formatDate(this.end)
+                + "name='" + this.name + '\''
+                + ", duration=" + this.duration + '\''
+                + ", start='" + this.start.toString() + '\''
+                + ", end=" + this.end.toString()
                 + '}';
-    }
-
-    /**
-     * Ritorna una stringa in formato dd/MM/yyyy da una data in
-     * {@link java.util.GregorianCalendar}.
-     *
-     * @param calendar La data da cui estrarre la stringa.
-     * @return La data in formato leggibile.
-     */
-    private String formatDate(GregorianCalendar calendar) {
-        SimpleDateFormat fmt = new SimpleDateFormat("dd/MMM/yyyy");
-        fmt.setCalendar(calendar);
-        String dateFormatted = fmt.format(calendar.getTime());
-        return dateFormatted;
     }
 
     public void removeDependency(Task t) {
@@ -195,19 +177,21 @@ public class Task {
     public void removeParent(Task t) {
         parents.remove(t);
     }
-    
-    public void update(String name, GregorianCalendar gc, int duration){
+
+    public void update(String name, LocalDate date, int duration) {
         this.name = name;
-        this.start = (GregorianCalendar) gc.clone();
-        this.defaultDate = (GregorianCalendar) gc.clone();
-        this.end = (GregorianCalendar) this.start.clone();
-        this.end.add(Calendar.DAY_OF_MONTH, duration - 1);
+        this.start = date.plusDays(0);
+        this.defaultDate = date.plusDays(0);
+        this.end = this.start.plusDays(duration - 1);
         this.duration = duration;
     }
 
     public void resetToDefault() {
-        this.start = (GregorianCalendar) this.defaultDate.clone();
-        this.end = (GregorianCalendar) this.start.clone();
-        this.end.add(Calendar.DAY_OF_MONTH, duration - 1);
+        this.start = this.defaultDate.plusDays(0);
+        this.end = this.start.plusDays(duration - 1);
+    }
+
+    public LocalDate getDefaultDate() {
+        return defaultDate;
     }
 }

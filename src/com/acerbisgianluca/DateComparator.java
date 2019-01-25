@@ -13,10 +13,10 @@ public class DateComparator implements Comparator {
     }
 
     @Override
-    public int compare(Object o1, Object o2) {
+    public int compare(Object date1, Object date2) {
         try {
             SimpleDateFormat fmt = new SimpleDateFormat("dd/MMM/yyyy");
-            return fmt.parse((String) o1).compareTo(fmt.parse((String) o2));
+            return fmt.parse((String) date1).compareTo(fmt.parse((String) date2));
         } catch (ParseException ex) {
             return 0;
         }
