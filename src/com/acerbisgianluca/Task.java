@@ -1,15 +1,13 @@
 package com.acerbisgianluca;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
  * Rappresenta un'attavità e contiene gli attributi che la identificano.
- */
+ * @author Gianluca
+*/
 public class Task {
 
     /**
@@ -23,13 +21,13 @@ public class Task {
     /**
      * La lista delle attività successive.
      */
-    private List<Task> parents;
+    private final List<Task> parents;
     /**
      * La lista delle attività da cui dipende l'attività stessa.
      */
-    private List<Task> dependencies;
+    private final List<Task> dependencies;
     /**
-     * La data di inizio.
+     * La data di inizio di default.
      */
     private LocalDate defaultDate;
     /**
@@ -170,14 +168,28 @@ public class Task {
                 + '}';
     }
 
+    /**
+     * Rimuove la dipendenza data.
+     * @param t Il Task da rimuovere.
+     */
     public void removeDependency(Task t) {
         dependencies.remove(t);
     }
 
+    /**
+     * Rimuove il successivo dato.
+     * @param t Il Task da rimuovere.
+     */
     public void removeParent(Task t) {
         parents.remove(t);
     }
 
+    /**
+     * Aggiorna i dati di un Task in base a quelli passati nel form.
+     * @param name Il nome nuovo.
+     * @param date La nuova data di inizio.
+     * @param duration La nuova durata.
+     */
     public void update(String name, LocalDate date, int duration) {
         this.name = name;
         this.start = date.plusDays(0);
@@ -186,11 +198,18 @@ public class Task {
         this.duration = duration;
     }
 
+    /**
+     * Ripristina la data di inizio a quella di default.
+     */
     public void resetToDefault() {
         this.start = this.defaultDate.plusDays(0);
         this.end = this.start.plusDays(duration - 1);
     }
 
+    /**
+     * Ritorna la data di inizio di default.
+     * @return La data di inizio di default.
+     */
     public LocalDate getDefaultDate() {
         return defaultDate;
     }

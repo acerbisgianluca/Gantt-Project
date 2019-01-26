@@ -2,14 +2,11 @@ package com.acerbisgianluca;
 
 import com.acerbisgianluca.exceptions.TaskAlreadyExistsException;
 import com.acerbisgianluca.exceptions.TaskNotFoundException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.List;
 import javax.swing.DefaultListModel;
 import javax.swing.table.DefaultTableModel;
@@ -19,14 +16,36 @@ import javax.swing.table.TableRowSorter;
  * E' la classe principale che non viene instanziata e che contiene i metodi
  * principali. Gestisce tutta la comunicazione con l'utente raccogliendo tutti i
  * dati sulle attività.
+ *
+ * @author Gianluca
  */
 public class App extends javax.swing.JFrame {
 
+    /**
+     * Il modello della tabella.
+     */
     private final DefaultTableModel tableModel;
+    /**
+     * Il modello della lista di possibili dipendenze.
+     */
     private final DefaultListModel<String> listModel;
+    /**
+     * L'oggetto che contiene i metodi per eseguire l'algoritmo.
+     */
     private final Algorithm algorithm;
+    /**
+     * Indica se si sta modificando un {@link com.acerbisgianluca.Task} già
+     * esistente.
+     */
     private boolean editing;
+    /**
+     * Il nome precedente del {@link com.acerbisgianluca.Task} che si sta
+     * modificando.
+     */
     private String lastName;
+    /**
+     * Formattatore per le date da stringa a oggetto e viceversa.
+     */
     private final DateTimeFormatter fmt;
 
     /**
@@ -231,12 +250,23 @@ public class App extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    /**
+     * Contiene l'algoritmo e i check per aggiungere/modificare un
+     * {@link com.acerbisgianluca.Task}.
+     *
+     * @param evt L'evento generato al click del bottone per
+     * aggiungere/modificare un {@link com.acerbisgianluca.Task}.
+     */
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
         Task newESEF, newLSLF, tESEF, tLSLF;
         try {
             if (editing) {
 
                 String name = txtName.getText().trim();
+                if (name.equals("")) {
+                    lblOutput.setText("Inserire il nome.");
+                    return;
+                }
                 if (!this.lastName.equals(name)) {
                     taskExists(name);
                 }
@@ -248,11 +278,7 @@ public class App extends javax.swing.JFrame {
                 LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
                 int duration = (int) spnDuration.getModel().getValue();
-
-                if (name.equals("") || duration < 1) {
-                    lblOutput.setText("Completare tutti i campi.");
-                    return;
-                }
+                duration = duration < 1 ? 1 : duration;
 
                 for (int i = 0; i < listModel.size(); i++) {
                     if (listModel.getElementAt(i).equals(this.lastName)) {
@@ -346,6 +372,10 @@ public class App extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnAddActionPerformed
 
+    /**
+     * Elimina tutti i {@link com.acerbisgianluca.Task}, resetta la tabella e i campi.
+     * @param evt L'evento generato al click sul bottone per eliminare tutti i {@link com.acerbisgianluca.Task}.
+     */
     private void btnDeleteAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAllActionPerformed
         algorithm.resetLists();
         tableModel.setRowCount(0);
@@ -353,6 +383,10 @@ public class App extends javax.swing.JFrame {
         cleanFields(true);
     }//GEN-LAST:event_btnDeleteAllActionPerformed
 
+    /**
+     * Carica nel form i dati del {@link com.acerbisgianluca.Task} selezionato.
+     * @param evt L'evento generato al click su di una riga della tabella.
+     */
     private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
         editing = true;
         lblAddTask.setText("Modifica l'attività selezionata");
@@ -408,6 +442,10 @@ public class App extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Pulisce tutti i campi del form.
+     * @param starting Vero se l'applicazione è appena stata avviata, altrimenti false.
+     */
     private void cleanFields(boolean starting) {
         txtName.setText("");
         spnDuration.setValue(1);
@@ -424,6 +462,11 @@ public class App extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Controlla se un {@link com.acerbisgianluca.Task} esiste già.
+     * @param name Il nome del nuovo {@link com.acerbisgianluca.Task}.
+     * @throws TaskAlreadyExistsException Se il {@link com.acerbisgianluca.Task} esiste già lancia la l'eccezione.
+     */
     private void taskExists(String name) throws TaskAlreadyExistsException {
         for (Task t : algorithm.getTasksESEF()) {
             if (t.getName().equalsIgnoreCase(name)) {
@@ -432,6 +475,9 @@ public class App extends javax.swing.JFrame {
         }
     }
 
+    /**
+     * Riesegue l'algoritmo sull'aggiunta o la modifica di un {@link com.acerbisgianluca.Task}.
+     */
     private void realTimeRun() {
         algorithm.resetForRunning();
         int totalDuration = algorithm.run();
@@ -439,21 +485,21 @@ public class App extends javax.swing.JFrame {
         showResult();
     }
 
+    /**
+     * Imposta il comparatore per l'ordinamento delle colonne della tabella che contengono una data.
+     */
     private void setRowSorter() {
         TableRowSorter tableRowSorter = new TableRowSorter(tableModel);
-        tableRowSorter.setComparator(2, new DateComparator());
-        tableRowSorter.setComparator(3, new DateComparator());
-        tableRowSorter.setComparator(4, new DateComparator());
-        tableRowSorter.setComparator(5, new DateComparator());
+        DateComparator dateComparator = new DateComparator();
+        tableRowSorter.setComparator(2, dateComparator);
+        tableRowSorter.setComparator(3, dateComparator);
+        tableRowSorter.setComparator(4, dateComparator);
+        tableRowSorter.setComparator(5, dateComparator);
         table.setRowSorter(tableRowSorter);
     }
 
     /**
-     * Si occupa di instanziare gli attributi e gli oggetti necessari alla
-     * raccolta delle informazioni riguardanti le attività. Inoltre esegue il
-     * metodo che organizza attività dipendenti e le successive. Infine stampa
-     * la durata totale del ciclo di attività ed apre una finestra
-     * {@link com.acerbisgianluca.Tabella}.
+     * Inizializza l'interfaccia grafica ed imposta il titolo.
      *
      * @param args I parametri passati all'interno della linea di comando.
      */
@@ -482,12 +528,10 @@ public class App extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                App app = new App();
-                app.setVisible(true);
-                app.setTitle("Gantt Project");
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            App app = new App();
+            app.setVisible(true);
+            app.setTitle("Gantt Project");
         });
     }
 

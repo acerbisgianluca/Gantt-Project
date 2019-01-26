@@ -7,6 +7,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Contiene i metodi che gestiscono entrambi gli algoritmi e le liste di
+ * attività.
+ *
+ * Per ogni tipo di algoritmo viene usata una lista diversa con oggetti clonati
+ * e quindi diversi.
+ *
+ * @author Gianluca
+ */
 public class Algorithm {
 
     /**
@@ -18,9 +27,18 @@ public class Algorithm {
      * La lista di attività su cui lavora l'algoritmo Late Start / Late Finish.
      */
     private final List<Task> tasksLSLF;
+    /**
+     * La lista di tutte le date iniziali.
+     */
     private final List<LocalDate> startDates;
+    /**
+     * La lista di tutte le date finali.
+     */
     private final List<LocalDate> endDates;
 
+    /**
+     * Crea un Algorithm ed inizializza tutte le liste.
+     */
     public Algorithm() {
         tasksESEF = new ArrayList<>();
         tasksLSLF = new ArrayList<>();
@@ -29,17 +47,23 @@ public class Algorithm {
     }
 
     /**
+     * Aggiunge un {@link com.acerbisgianluca.Task} ad una delle 2 liste in base
+     * al secondo paramentro.
      *
-     * @param t
-     * @param esef
-     * @return
+     * @param t Il {@link com.acerbisgianluca.Task} da aggiungere.
+     * @param esef Se è vero il {@link com.acerbisgianluca.Task} viene aggiunto
+     * alla lista ES/EF, altrimenti a LS/LF.
+     * @return Vero se l'operazione è andata a buon fine, altrimenti falso.
      */
     public boolean addTask(Task t, boolean esef) {
         return esef ? tasksESEF.add(t) : tasksLSLF.add(t);
     }
 
     /**
-     * Esegue entrambi gli algoritmi ES/EF e LS/LF.
+     * Esegue entrambi gli algoritmi ES/EF e LS/LF, calcola la durata totale
+     * facendo la differenza fra data finale massima e data iniziale minima e
+     * sistema alcune attività per farle cominciare il più tardi possibile
+     * (LS/LF).
      *
      * @return La durata totale del ciclo di attività.
      */
@@ -65,6 +89,7 @@ public class Algorithm {
             }
         }
 
+        // Raccolgo tutte le date
         this.startDates.clear();
         this.endDates.clear();
         for (Task t : tasksESEF) {
@@ -74,17 +99,19 @@ public class Algorithm {
 
         LocalDate lastDate = Collections.max(this.endDates);
 
-        for (Task t : tasksLSLF) {
+        // Sistemo le attività che potrebbero non essere posizionate in fondo
+        tasksLSLF.forEach((t) -> {
             if (t.getParents().isEmpty() && t.getDependencies().isEmpty()) {
                 t.setLateFinish(lastDate.plusDays(1));
             } else if (t.getParents().isEmpty()) {
                 t.setLateFinish(lastDate.plusDays(1));
-                for (Task child : t.getDependencies()) {
+                t.getDependencies().forEach((child) -> {
                     lastMove(child, t);
-                }
+                });
             }
-        }
+        });
 
+        // Calcolo la durata effettiva
         long diff = java.sql.Date.valueOf(Collections.max(this.endDates)).getTime() - java.sql.Date.valueOf(Collections.min(this.startDates)).getTime();
         return (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) + 1;
     }
@@ -101,9 +128,9 @@ public class Algorithm {
             }
             t.setLateFinish(best);
         }
-        for (Task child : t.getDependencies()) {
+        t.getDependencies().forEach((child) -> {
             lastMove(child, t);
-        }
+        });
     }
 
     /**
@@ -176,6 +203,17 @@ public class Algorithm {
         return maxDuration + t.getDuration();
     }
 
+    /**
+     * Cerca un {@link com.acerbisgianluca.Task} in una delle 2 liste in base al
+     * secondo paramentro.
+     *
+     * @param name Il nome del {@link com.acerbisgianluca.Task} da cercare.
+     * @param esef Se è vero il {@link com.acerbisgianluca.Task} viene cercato
+     * nella lista ES/EF, altrimenti in LS/LF.
+     * @return Il {@link com.acerbisgianluca.Task} trovato.
+     * @throws TaskNotFoundException Viene lanciata se non viene trovato alcun
+     * {@link com.acerbisgianluca.Task} con il nome dato.
+     */
     public Task getTaskByName(String name, boolean esef) throws TaskNotFoundException {
         for (Task t : esef ? tasksESEF : tasksLSLF) {
             if (t.getName().equalsIgnoreCase(name)) {
@@ -186,19 +224,36 @@ public class Algorithm {
         throw new TaskNotFoundException("Attività non trovata.");
     }
 
+    /**
+     * Recupera la lista usata per l'algoritmo ES/EF.
+     *
+     * @return La lista ES/EF.
+     */
     public List<Task> getTasksESEF() {
         return tasksESEF;
     }
 
+    /**
+     * Recupera la lista usata per l'algoritmo LS/LF.
+     *
+     * @return La lista LS/LF.
+     */
     public List<Task> getTasksLSLF() {
         return tasksLSLF;
     }
 
+    /**
+     * Svuota le 2 liste.
+     */
     public void resetLists() {
         tasksESEF.clear();
         tasksLSLF.clear();
     }
 
+    /**
+     * Ripristina la data di default per ogni {@link com.acerbisgianluca.Task}
+     * in entrambe le liste.
+     */
     public void resetForRunning() {
         for (int i = 0; i < tasksESEF.size(); i++) {
             tasksESEF.get(i).resetToDefault();
