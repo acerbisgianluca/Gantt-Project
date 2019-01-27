@@ -2,8 +2,13 @@ package com.acerbisgianluca;
 
 import com.acerbisgianluca.exceptions.TaskAlreadyExistsException;
 import com.acerbisgianluca.exceptions.TaskNotFoundException;
+import com.acerbisgianluca.filemanager.FileManager;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -36,7 +41,7 @@ public class App extends javax.swing.JFrame {
     /**
      * L'oggetto che contiene i metodi per eseguire l'algoritmo.
      */
-    private final Algorithm algorithm;
+    private Algorithm algorithm;
     /**
      * Indica se si sta modificando un {@link com.acerbisgianluca.Task} già
      * esistente.
@@ -88,12 +93,21 @@ public class App extends javax.swing.JFrame {
         listScrollPane = new javax.swing.JScrollPane();
         listDependencies = new javax.swing.JList<>();
         btnAdd = new javax.swing.JButton();
+        btnDeleteTask = new javax.swing.JButton();
+        btnDeleteAll = new javax.swing.JButton();
         separator = new javax.swing.JSeparator();
         tableScrollPane = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
-        btnDeleteAll = new javax.swing.JButton();
-        btnDeleteTask = new javax.swing.JButton();
         lblOutput = new javax.swing.JLabel();
+        menuBar = new javax.swing.JMenuBar();
+        file = new javax.swing.JMenu();
+        btnSave = new javax.swing.JMenuItem();
+        btnLoad = new javax.swing.JMenuItem();
+        btnExit = new javax.swing.JMenuItem();
+        help = new javax.swing.JMenu();
+        github = new javax.swing.JMenuItem();
+        tutorial = new javax.swing.JMenuItem();
+        bugReport = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Gantt Project");
@@ -121,6 +135,21 @@ public class App extends javax.swing.JFrame {
         btnAdd.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnAddActionPerformed(evt);
+            }
+        });
+
+        btnDeleteTask.setText("Elimina attività");
+        btnDeleteTask.setEnabled(false);
+        btnDeleteTask.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteTaskActionPerformed(evt);
+            }
+        });
+
+        btnDeleteAll.setText("Elimina tutto");
+        btnDeleteAll.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteAllActionPerformed(evt);
             }
         });
 
@@ -161,21 +190,6 @@ public class App extends javax.swing.JFrame {
         });
         tableScrollPane.setViewportView(table);
 
-        btnDeleteAll.setText("Elimina tutto");
-        btnDeleteAll.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteAllActionPerformed(evt);
-            }
-        });
-
-        btnDeleteTask.setText("Elimina attività");
-        btnDeleteTask.setEnabled(false);
-        btnDeleteTask.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnDeleteTaskActionPerformed(evt);
-            }
-        });
-
         lblOutput.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
 
         javax.swing.GroupLayout panelLayout = new javax.swing.GroupLayout(panel);
@@ -183,42 +197,39 @@ public class App extends javax.swing.JFrame {
         panelLayout.setHorizontalGroup(
             panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelLayout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelLayout.createSequentialGroup()
-                        .addComponent(btnDeleteAll)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnDeleteTask)
-                        .addGap(18, 18, 18)
-                        .addComponent(lblOutput, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(410, 410, 410))
-                    .addGroup(panelLayout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelLayout.createSequentialGroup()
+                                .addComponent(lblName)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(lblDuration)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(spnDuration, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(lblStartDate)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(spnDate, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(lblDependencies)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(listScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addComponent(lblAddTask)
                             .addComponent(tableScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 536, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addGroup(panelLayout.createSequentialGroup()
-                        .addComponent(lblName)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblDuration)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(spnDuration, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblStartDate)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(spnDate, javax.swing.GroupLayout.PREFERRED_SIZE, 112, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(lblDependencies)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(listScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 85, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(0, 10, Short.MAX_VALUE))))
-            .addGroup(panelLayout.createSequentialGroup()
-                .addComponent(separator, javax.swing.GroupLayout.PREFERRED_SIZE, 546, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, Short.MAX_VALUE))
+                        .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnAdd, javax.swing.GroupLayout.PREFERRED_SIZE, 83, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(btnDeleteTask)
+                            .addComponent(btnDeleteAll)))
+                    .addComponent(separator, javax.swing.GroupLayout.PREFERRED_SIZE, 546, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(0, 10, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(lblOutput, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap())
         );
         panelLayout.setVerticalGroup(
             panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -243,16 +254,78 @@ public class App extends javax.swing.JFrame {
                     .addGroup(panelLayout.createSequentialGroup()
                         .addGap(1, 1, 1)
                         .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnAdd)
+                            .addGroup(panelLayout.createSequentialGroup()
+                                .addComponent(btnAdd)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnDeleteTask)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(btnDeleteAll))
                             .addComponent(listScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 427, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addGap(18, 18, 18)
-                .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(btnDeleteAll)
-                        .addComponent(btnDeleteTask)))
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lblOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
+
+        file.setText("File");
+
+        btnSave.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
+        btnSave.setText("Salva");
+        btnSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSaveActionPerformed(evt);
+            }
+        });
+        file.add(btnSave);
+
+        btnLoad.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L, java.awt.event.InputEvent.CTRL_MASK));
+        btnLoad.setText("Carica");
+        btnLoad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoadActionPerformed(evt);
+            }
+        });
+        file.add(btnLoad);
+
+        btnExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_Q, java.awt.event.InputEvent.CTRL_MASK));
+        btnExit.setText("Esci");
+        btnExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExitActionPerformed(evt);
+            }
+        });
+        file.add(btnExit);
+
+        menuBar.add(file);
+
+        help.setText("Aiuto");
+
+        github.setText("Github Repository");
+        github.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                githubActionPerformed(evt);
+            }
+        });
+        help.add(github);
+
+        tutorial.setText("Guida");
+        tutorial.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tutorialActionPerformed(evt);
+            }
+        });
+        help.add(tutorial);
+
+        bugReport.setText("Segnala un bug");
+        bugReport.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bugReportActionPerformed(evt);
+            }
+        });
+        help.add(bugReport);
+
+        menuBar.add(help);
+
+        setJMenuBar(menuBar);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -265,10 +338,7 @@ public class App extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
@@ -454,7 +524,9 @@ public class App extends javax.swing.JFrame {
         listModel.removeElement(name);
 
         cleanFields(false);
-        realTimeRun();
+        if (!this.algorithm.getTasksESEF().isEmpty()) {
+            realTimeRun();
+        }
     }//GEN-LAST:event_btnDeleteTaskActionPerformed
 
     /**
@@ -508,9 +580,110 @@ public class App extends javax.swing.JFrame {
      * @param evt L'evente generato al click di un tasto della tastiera.
      */
     private void tableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableKeyPressed
-        if (evt.getKeyCode() == KeyEvent.VK_UP || evt.getKeyCode() == KeyEvent.VK_DOWN)
+        if (evt.getKeyCode() == KeyEvent.VK_UP || evt.getKeyCode() == KeyEvent.VK_DOWN) {
             evt.consume();
+        }
     }//GEN-LAST:event_tableKeyPressed
+
+    /**
+     * Salva su file l'intero oggetto che contiene l'agoritmo e quindi le 2
+     * liste.
+     *
+     * @param evt L'evento generato al clic sul pulsante di salvataggio.
+     */
+    private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
+        try {
+            FileManager.objectToFile(algorithm, "tasks.gantt");
+            showMessage("Salvataggio avvenuto con successo.", false);
+        } catch (IOException ex) {
+            showMessage("Errore nel salvataggio del file.", true);
+        }
+    }//GEN-LAST:event_btnSaveActionPerformed
+
+    /**
+     * Carica da file l'intero oggetto che contiene l'agoritmo e quindi le 2
+     * liste. Riempie la lista di dipendenze e la tabella.
+     *
+     * @param evt L'evento generato al clic sul pulsante di caricamento.
+     */
+    private void btnLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadActionPerformed
+        try {
+            this.algorithm = (Algorithm) FileManager.fileToObject("tasks.gantt");
+            this.algorithm.getTasksESEF().forEach((t) -> {
+                listModel.addElement(t.getName());
+            });
+
+            showResult();
+            showMessage("File caricato con successo.", false);
+        } catch (IOException | ClassNotFoundException ex) {
+            showMessage("Errore nella lettura del file. Se non hai ancora salvato, fallo!", true);
+        }
+    }//GEN-LAST:event_btnLoadActionPerformed
+
+    /**
+     * Chiude il programma.
+     *
+     * @param evt L'evento generato al clic sul pulsante di chiusura.
+     */
+    private void btnExitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExitActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_btnExitActionPerformed
+
+    /**
+     * Apre nel browser predefinito la repository di Github.
+     *
+     * @param evt L'evento generato al clic sul pulsante di apertura di Github.
+     */
+    private void githubActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_githubActionPerformed
+        try {
+            openBrowser(new URL("https://github.com/acerbisgianluca/Gantt-Project"));
+        } catch (MalformedURLException ex) {
+            showMessage("Impossibile aprire il browser.", true);
+        }
+    }//GEN-LAST:event_githubActionPerformed
+
+    /**
+     * Apre nel browser predefinito la wiki del progetto su Github.
+     *
+     * @param evt L'evento generato al clic sul pulsante di apertura di Github.
+     */
+    private void tutorialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tutorialActionPerformed
+        try {
+            openBrowser(new URL("https://github.com/acerbisgianluca/Gantt-Project/wiki"));
+        } catch (MalformedURLException ex) {
+            showMessage("Impossibile aprire il browser.", true);
+        }
+    }//GEN-LAST:event_tutorialActionPerformed
+
+    /**
+     * Apre nel browser predefinito gli issues del progetto su Github.
+     *
+     * @param evt L'evento generato al clic sul pulsante di apertura di Github.
+     */
+    private void bugReportActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bugReportActionPerformed
+        try {
+            openBrowser(new URL("https://github.com/acerbisgianluca/Gantt-Project/issues"));
+        } catch (MalformedURLException ex) {
+            showMessage("Impossibile aprire il browser.", true);
+        }
+    }//GEN-LAST:event_bugReportActionPerformed
+
+    /**
+     * Recupera il browser predefinito dell'utente e apre il link passato come
+     * argomento.
+     *
+     * @param url L'url da aprire nel browser.
+     */
+    private void openBrowser(URL url) {
+        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+            try {
+                desktop.browse(url.toURI());
+            } catch (IOException | URISyntaxException e) {
+                showMessage("Impossibile aprire il browser.", true);
+            }
+        }
+    }
 
     /**
      * Crea le righe all'interno della tabella indicando nome, durata, data di
@@ -648,6 +821,13 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnDeleteAll;
     private javax.swing.JButton btnDeleteTask;
+    private javax.swing.JMenuItem btnExit;
+    private javax.swing.JMenuItem btnLoad;
+    private javax.swing.JMenuItem btnSave;
+    private javax.swing.JMenuItem bugReport;
+    private javax.swing.JMenu file;
+    private javax.swing.JMenuItem github;
+    private javax.swing.JMenu help;
     private javax.swing.JLabel lblAddTask;
     private javax.swing.JLabel lblDependencies;
     private javax.swing.JLabel lblDuration;
@@ -656,12 +836,14 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JLabel lblStartDate;
     private javax.swing.JList<String> listDependencies;
     private javax.swing.JScrollPane listScrollPane;
+    private javax.swing.JMenuBar menuBar;
     private javax.swing.JPanel panel;
     private javax.swing.JSeparator separator;
     private javax.swing.JSpinner spnDate;
     private javax.swing.JSpinner spnDuration;
     private javax.swing.JTable table;
     private javax.swing.JScrollPane tableScrollPane;
+    private javax.swing.JMenuItem tutorial;
     private javax.swing.JTextField txtName;
     // End of variables declaration//GEN-END:variables
 }

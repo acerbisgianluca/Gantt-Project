@@ -1,6 +1,7 @@
 package com.acerbisgianluca;
 
 import com.acerbisgianluca.exceptions.TaskNotFoundException;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -16,7 +17,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Gianluca
  */
-public class Algorithm {
+public class Algorithm implements Serializable {
 
     /**
      * La lista di attività su cui lavora l'algoritmo Early Start / Early
@@ -262,13 +263,15 @@ public class Algorithm {
             tasksLSLF.get(i).resetToDefault();
         }
     }
-    
+
     /**
-     * Rimuove da entrambe le liste le 2 attività passate come argomento, una per ogni lista.
+     * Rimuove da entrambe le liste le 2 attività passate come argomento, una
+     * per ogni lista.
+     *
      * @param tESEF L'attività da rimuovere dalla lista ESEF.
      * @param tLSLF L'attività da rimuovere dalla lista LSLF.
      */
-    public void removeFromLists(Task tESEF, Task tLSLF){
+    public void removeFromLists(Task tESEF, Task tLSLF) {
         tasksESEF.remove(tESEF);
         tasksLSLF.remove(tLSLF);
     }

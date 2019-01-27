@@ -1,5 +1,6 @@
 package com.acerbisgianluca;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
  *
  * @author Gianluca
  */
-public class Task {
+public class Task implements Serializable {
 
     /**
      * Il nome dell'attività
