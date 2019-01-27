@@ -1,5 +1,5 @@
 # Gantt Project
-Progetto scolastisco per l'organizzazione di attività in Java 10 (compatibile anche con Java 8).
+Progetto scolastisco per l'organizzazione di attività compatibile con Java 8 e successivi.
 
 ## Guida per l'utente
 Le indicazioni per l'utilizzo del programma sono reperibili nella [Wiki](https://github.com/acerbisgianluca/Gantt-Project/wiki) del progetto.
