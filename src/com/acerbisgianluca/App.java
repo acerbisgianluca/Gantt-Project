@@ -98,6 +98,7 @@ public class App extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Gantt Project");
+        setResizable(false);
 
         lblAddTask.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         lblAddTask.setText("Aggiungi una nuova attività");
@@ -400,6 +401,10 @@ public class App extends javax.swing.JFrame {
      * {@link com.acerbisgianluca.Task}.
      */
     private void btnDeleteAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAllActionPerformed
+        if(algorithm.getTasksESEF().isEmpty()){
+            showMessage("Non è stata ancora inserita alcuna attività.", true);
+            return;
+        }
         algorithm.resetLists();
         tableModel.setRowCount(0);
         listModel.clear();
