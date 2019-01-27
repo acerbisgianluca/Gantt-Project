@@ -3,6 +3,7 @@ package com.acerbisgianluca;
 import com.acerbisgianluca.exceptions.TaskAlreadyExistsException;
 import com.acerbisgianluca.exceptions.TaskNotFoundException;
 import java.awt.Color;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -401,7 +402,7 @@ public class App extends javax.swing.JFrame {
      * {@link com.acerbisgianluca.Task}.
      */
     private void btnDeleteAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAllActionPerformed
-        if(algorithm.getTasksESEF().isEmpty()){
+        if (algorithm.getTasksESEF().isEmpty()) {
             showMessage("Non è stata ancora inserita alcuna attività.", true);
             return;
         }
@@ -456,8 +457,11 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_tableMouseClicked
 
     /**
-     * Elimina l'attività dalle liste, dalla tabella, dalla lista di dipendenze e da tutte le attività ad essa collegate.
-     * @param evt L'evento generato al click sul bottone per eliminare un'attività.
+     * Elimina l'attività dalle liste, dalla tabella, dalla lista di dipendenze
+     * e da tutte le attività ad essa collegate.
+     *
+     * @param evt L'evento generato al click sul bottone per eliminare
+     * un'attività.
      */
     private void btnDeleteTaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteTaskActionPerformed
         int row = table.getSelectedRow();
@@ -573,19 +577,22 @@ public class App extends javax.swing.JFrame {
     }
 
     /**
-     * Mostra il messaggio passato come argomento nella label posta sotto la tabella.
+     * Mostra il messaggio passato come argomento nella label posta sotto la
+     * tabella.
+     *
      * @param message Il messaggio da mostrare.
      * @param error Vero se è un errore, falso altrimenti.
      */
-    private void showMessage(String message, boolean error){
-        if(error)
+    private void showMessage(String message, boolean error) {
+        if (error) {
             lblOutput.setForeground(Color.red);
-        else
+        } else {
             lblOutput.setForeground(Color.black);
-        
+        }
+
         lblOutput.setText(message);
     }
-    
+
     /**
      * Inizializza l'interfaccia grafica ed imposta il titolo.
      *
@@ -614,7 +621,8 @@ public class App extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             App app = new App();
-            ImageIcon img = new ImageIcon(".\\img\\logo.png");
+            URL url = App.class.getResource("/resources/img/logo.png");
+            ImageIcon img = new ImageIcon(url);
             app.setIconImage(img.getImage());
             app.setVisible(true);
         });
