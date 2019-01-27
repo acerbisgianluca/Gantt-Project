@@ -2,6 +2,7 @@ package com.acerbisgianluca;
 
 import com.acerbisgianluca.exceptions.TaskAlreadyExistsException;
 import com.acerbisgianluca.exceptions.TaskNotFoundException;
+import java.awt.Color;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -283,7 +284,7 @@ public class App extends javax.swing.JFrame {
 
                 String name = txtName.getText().trim();
                 if (name.equals("")) {
-                    lblOutput.setText("Inserire il nome.");
+                    showMessage("Inserire il nome.", true);
                     return;
                 }
                 if (!this.lastName.equals(name)) {
@@ -347,7 +348,7 @@ public class App extends javax.swing.JFrame {
 
             String name = txtName.getText().trim();
             if (name.equals("")) {
-                lblOutput.setText("Inserire il nome.");
+                showMessage("Inserire il nome.", true);
                 return;
             }
             taskExists(name);
@@ -387,7 +388,7 @@ public class App extends javax.swing.JFrame {
             cleanFields(false);
             realTimeRun();
         } catch (TaskNotFoundException | TaskAlreadyExistsException ex) {
-            lblOutput.setText(ex.getMessage());
+            showMessage(ex.getMessage(), true);
         }
     }//GEN-LAST:event_btnAddActionPerformed
 
@@ -445,10 +446,14 @@ public class App extends javax.swing.JFrame {
                 listDependencies.setSelectedIndices(selectedIndicesArr);
             }
         } catch (TaskNotFoundException ex) {
-            lblOutput.setText(ex.getMessage());
+            showMessage(ex.getMessage(), true);
         }
     }//GEN-LAST:event_tableMouseClicked
 
+    /**
+     * Elimina l'attività dalle liste, dalla tabella, dalla lista di dipendenze e da tutte le attività ad essa collegate.
+     * @param evt L'evento generato al click sul bottone per eliminare un'attività.
+     */
     private void btnDeleteTaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteTaskActionPerformed
         int row = table.getSelectedRow();
         String name = (String) table.getValueAt(row, 0);
@@ -469,15 +474,15 @@ public class App extends javax.swing.JFrame {
             tLSLF.getParents().forEach((t) -> {
                 t.removeDependency(tLSLF);
             });
-            
+
             algorithm.removeFromLists(tESEF, tLSLF);
         } catch (TaskNotFoundException ex) {
-            lblOutput.setText(ex.getMessage());
+            showMessage(ex.getMessage(), true);
         }
-        
+
         tableModel.removeRow(row);
         listModel.removeElement(name);
-        
+
         cleanFields(false);
         realTimeRun();
     }//GEN-LAST:event_btnDeleteTaskActionPerformed
@@ -509,7 +514,7 @@ public class App extends javax.swing.JFrame {
         txtName.setText("");
         spnDuration.setValue(1);
         spnDate.setValue(new Date());
-        lblOutput.setText("");
+        showMessage("", false);
         if (starting) {
             listModel.addElement("Nessuna");
         }
@@ -544,7 +549,7 @@ public class App extends javax.swing.JFrame {
     private void realTimeRun() {
         algorithm.resetForRunning();
         int totalDuration = algorithm.run();
-        lblOutput.setText("La durata totale del ciclo di attività è di " + totalDuration + " giorni.");
+        showMessage("La durata totale del ciclo di attività è di " + totalDuration + " giorni.", false);
         showResult();
     }
 
@@ -562,6 +567,20 @@ public class App extends javax.swing.JFrame {
         table.setRowSorter(tableRowSorter);
     }
 
+    /**
+     * Mostra il messaggio passato come argomento nella label posta sotto la tabella.
+     * @param message Il messaggio da mostrare.
+     * @param error Vero se è un errore, falso altrimenti.
+     */
+    private void showMessage(String message, boolean error){
+        if(error)
+            lblOutput.setForeground(Color.red);
+        else
+            lblOutput.setForeground(Color.black);
+        
+        lblOutput.setText(message);
+    }
+    
     /**
      * Inizializza l'interfaccia grafica ed imposta il titolo.
      *
