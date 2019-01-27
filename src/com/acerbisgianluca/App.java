@@ -302,24 +302,15 @@ public class App extends javax.swing.JFrame {
                 int duration = (int) spnDuration.getModel().getValue();
                 duration = duration < 1 ? 1 : duration;
 
-                for (int i = 0; i < listModel.size(); i++) {
-                    if (listModel.getElementAt(i).equals(this.lastName)) {
-                        listModel.set(i, name);
-                        break;
-                    }
-                }
-
-                newLSLF.update(name, localDate, duration);
-                newESEF.update(name, localDate, duration);
-                showResult();
-
                 int[] dependenciesIds = listDependencies.getSelectedIndices();
-
                 for (int i : dependenciesIds) {
-                    if (i == 0) {
-                        break;
-                    } else if (listModel.getElementAt(i).equals(name)) {
+                    if (i == 0 || listModel.getElementAt(i).equals(this.lastName)) {
                         continue;
+                    }
+                    
+                    if(algorithm.getTaskByName(listModel.getElementAt(i), true).getDependencies().contains(newESEF)){
+                        showMessage("Rilevato ciclo fra 2 attività.", true);
+                        return;
                     }
 
                     if (!newESEF.getDependencies().contains((tESEF = algorithm.getTaskByName(listModel.getElementAt(i), true)))) {
@@ -330,7 +321,18 @@ public class App extends javax.swing.JFrame {
                         tLSLF.addParent(newLSLF);
                     }
                 }
+                
+                newLSLF.update(name, localDate, duration);
+                newESEF.update(name, localDate, duration);
+                showResult();
 
+                for (int i = 0; i < listModel.size(); i++) {
+                    if (listModel.getElementAt(i).equals(this.lastName)) {
+                        listModel.set(i, name);
+                        break;
+                    }
+                }
+                
                 for (int i = 1; i < listModel.size(); i++) {
                     if (!listDependencies.isSelectedIndex(i)) {
                         if (newESEF.getDependencies().contains((tESEF = algorithm.getTaskByName(listModel.getElementAt(i), true)))) {
@@ -367,7 +369,7 @@ public class App extends javax.swing.JFrame {
             int[] dependenciesIds = listDependencies.getSelectedIndices();
             for (int i : dependenciesIds) {
                 if (i == 0) {
-                    break;
+                    continue;
                 }
 
                 tESEF = algorithm.getTaskByName(listModel.getElementAt(i), true);
@@ -495,7 +497,7 @@ public class App extends javax.swing.JFrame {
         cleanFields(false);
         realTimeRun();
     }//GEN-LAST:event_btnDeleteTaskActionPerformed
-
+    
     /**
      * Crea le righe all'interno della tabella indicando nome, durata, data di
      * inizio ES, data di fine EF, data di inizio LS e data di fine LF di ogni
