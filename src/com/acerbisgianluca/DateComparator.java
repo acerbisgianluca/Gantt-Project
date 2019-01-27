@@ -5,7 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.Comparator;
 
 /**
- * Viene utilizzato all'interno della tabella per ordinare le colonne in base alla data.
+ * Viene utilizzato all'interno della tabella per ordinare le colonne in base
+ * alla data.
+ *
  * @author Gianluca
  */
 public class DateComparator implements Comparator {
@@ -18,9 +20,12 @@ public class DateComparator implements Comparator {
 
     /**
      * Calcola quale delle 2 date viene prima o se coincidono.
+     *
      * @param date1 La prima data.
      * @param date2 La seconda data.
-     * @return 0 se le date coincidono (o se avviene un errore nel parsing), meno di 0 se le prima data viene prima della seconda e più di 0 se avviene il contrario.
+     * @return 0 se le date coincidono (o se avviene un errore nel parsing),
+     * meno di 0 se le prima data viene prima della seconda e più di 0 se
+     * avviene il contrario.
      */
     @Override
     public int compare(Object date1, Object date2) {

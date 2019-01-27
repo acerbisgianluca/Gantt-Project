@@ -92,10 +92,12 @@ public class Algorithm {
         // Raccolgo tutte le date
         this.startDates.clear();
         this.endDates.clear();
-        for (Task t : tasksESEF) {
+        tasksESEF.stream().map((t) -> {
             this.startDates.add(t.getStart());
+            return t;
+        }).forEachOrdered((t) -> {
             this.endDates.add(t.getEnd());
-        }
+        });
 
         LocalDate lastDate = Collections.max(this.endDates);
 

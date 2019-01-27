@@ -6,8 +6,9 @@ import java.util.List;
 
 /**
  * Rappresenta un'attavità e contiene gli attributi che la identificano.
+ *
  * @author Gianluca
-*/
+ */
 public class Task {
 
     /**
@@ -170,6 +171,7 @@ public class Task {
 
     /**
      * Rimuove la dipendenza data.
+     *
      * @param t Il Task da rimuovere.
      */
     public void removeDependency(Task t) {
@@ -178,6 +180,7 @@ public class Task {
 
     /**
      * Rimuove il successivo dato.
+     *
      * @param t Il Task da rimuovere.
      */
     public void removeParent(Task t) {
@@ -186,6 +189,7 @@ public class Task {
 
     /**
      * Aggiorna i dati di un Task in base a quelli passati nel form.
+     *
      * @param name Il nome nuovo.
      * @param date La nuova data di inizio.
      * @param duration La nuova durata.
@@ -208,6 +212,7 @@ public class Task {
 
     /**
      * Ritorna la data di inizio di default.
+     *
      * @return La data di inizio di default.
      */
     public LocalDate getDefaultDate() {

@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
@@ -91,6 +92,7 @@ public class App extends javax.swing.JFrame {
         lblOutput = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Gantt Project");
 
         lblAddTask.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         lblAddTask.setText("Aggiungi una nuova attività");
@@ -248,6 +250,7 @@ public class App extends javax.swing.JFrame {
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     /**
@@ -373,8 +376,11 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_btnAddActionPerformed
 
     /**
-     * Elimina tutti i {@link com.acerbisgianluca.Task}, resetta la tabella e i campi.
-     * @param evt L'evento generato al click sul bottone per eliminare tutti i {@link com.acerbisgianluca.Task}.
+     * Elimina tutti i {@link com.acerbisgianluca.Task}, resetta la tabella e i
+     * campi.
+     *
+     * @param evt L'evento generato al click sul bottone per eliminare tutti i
+     * {@link com.acerbisgianluca.Task}.
      */
     private void btnDeleteAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAllActionPerformed
         algorithm.resetLists();
@@ -385,6 +391,7 @@ public class App extends javax.swing.JFrame {
 
     /**
      * Carica nel form i dati del {@link com.acerbisgianluca.Task} selezionato.
+     *
      * @param evt L'evento generato al click su di una riga della tabella.
      */
     private void tableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMouseClicked
@@ -444,7 +451,9 @@ public class App extends javax.swing.JFrame {
 
     /**
      * Pulisce tutti i campi del form.
-     * @param starting Vero se l'applicazione è appena stata avviata, altrimenti false.
+     *
+     * @param starting Vero se l'applicazione è appena stata avviata, altrimenti
+     * false.
      */
     private void cleanFields(boolean starting) {
         txtName.setText("");
@@ -464,8 +473,10 @@ public class App extends javax.swing.JFrame {
 
     /**
      * Controlla se un {@link com.acerbisgianluca.Task} esiste già.
+     *
      * @param name Il nome del nuovo {@link com.acerbisgianluca.Task}.
-     * @throws TaskAlreadyExistsException Se il {@link com.acerbisgianluca.Task} esiste già lancia la l'eccezione.
+     * @throws TaskAlreadyExistsException Se il {@link com.acerbisgianluca.Task}
+     * esiste già lancia la l'eccezione.
      */
     private void taskExists(String name) throws TaskAlreadyExistsException {
         for (Task t : algorithm.getTasksESEF()) {
@@ -476,7 +487,8 @@ public class App extends javax.swing.JFrame {
     }
 
     /**
-     * Riesegue l'algoritmo sull'aggiunta o la modifica di un {@link com.acerbisgianluca.Task}.
+     * Riesegue l'algoritmo sull'aggiunta o la modifica di un
+     * {@link com.acerbisgianluca.Task}.
      */
     private void realTimeRun() {
         algorithm.resetForRunning();
@@ -486,7 +498,8 @@ public class App extends javax.swing.JFrame {
     }
 
     /**
-     * Imposta il comparatore per l'ordinamento delle colonne della tabella che contengono una data.
+     * Imposta il comparatore per l'ordinamento delle colonne della tabella che
+     * contengono una data.
      */
     private void setRowSorter() {
         TableRowSorter tableRowSorter = new TableRowSorter(tableModel);
@@ -516,22 +529,19 @@ public class App extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(App.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
+
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             App app = new App();
+            ImageIcon img = new ImageIcon(".\\img\\logo.png");
+            app.setIconImage(img.getImage());
             app.setVisible(true);
-            app.setTitle("Gantt Project");
         });
     }
 
