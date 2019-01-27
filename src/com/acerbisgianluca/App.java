@@ -8,6 +8,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.scene.control.TreeItem;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
@@ -89,6 +92,7 @@ public class App extends javax.swing.JFrame {
         tableScrollPane = new javax.swing.JScrollPane();
         table = new javax.swing.JTable();
         btnDeleteAll = new javax.swing.JButton();
+        btnDeleteTask = new javax.swing.JButton();
         lblOutput = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -158,6 +162,14 @@ public class App extends javax.swing.JFrame {
             }
         });
 
+        btnDeleteTask.setText("Elimina attività");
+        btnDeleteTask.setEnabled(false);
+        btnDeleteTask.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteTaskActionPerformed(evt);
+            }
+        });
+
         lblOutput.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
 
         javax.swing.GroupLayout panelLayout = new javax.swing.GroupLayout(panel);
@@ -169,9 +181,11 @@ public class App extends javax.swing.JFrame {
                 .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelLayout.createSequentialGroup()
                         .addComponent(btnDeleteAll)
-                        .addGap(38, 38, 38)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(btnDeleteTask)
+                        .addGap(18, 18, 18)
                         .addComponent(lblOutput, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(473, 473, 473))
+                        .addGap(410, 410, 410))
                     .addGroup(panelLayout.createSequentialGroup()
                         .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblAddTask)
@@ -228,7 +242,9 @@ public class App extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnDeleteAll))
+                    .addGroup(panelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btnDeleteAll)
+                        .addComponent(btnDeleteTask)))
                 .addContainerGap())
         );
 
@@ -398,6 +414,7 @@ public class App extends javax.swing.JFrame {
         editing = true;
         lblAddTask.setText("Modifica l'attività selezionata");
         btnAdd.setText("Modifica");
+        btnDeleteTask.setEnabled(true);
 
         try {
             int row = table.getSelectedRow();
@@ -431,6 +448,39 @@ public class App extends javax.swing.JFrame {
             lblOutput.setText(ex.getMessage());
         }
     }//GEN-LAST:event_tableMouseClicked
+
+    private void btnDeleteTaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteTaskActionPerformed
+        int row = table.getSelectedRow();
+        String name = (String) table.getValueAt(row, 0);
+        Task tESEF, tLSLF;
+        try {
+            tESEF = algorithm.getTaskByName(name, true);
+            tLSLF = algorithm.getTaskByName(name, false);
+
+            tESEF.getDependencies().forEach((t) -> {
+                t.removeParent(tESEF);
+            });
+            tESEF.getParents().forEach((t) -> {
+                t.removeDependency(tESEF);
+            });
+            tLSLF.getDependencies().forEach((t) -> {
+                t.removeParent(tLSLF);
+            });
+            tLSLF.getParents().forEach((t) -> {
+                t.removeDependency(tLSLF);
+            });
+            
+            algorithm.removeFromLists(tESEF, tLSLF);
+        } catch (TaskNotFoundException ex) {
+            lblOutput.setText(ex.getMessage());
+        }
+        
+        tableModel.removeRow(row);
+        listModel.removeElement(name);
+        
+        cleanFields(false);
+        realTimeRun();
+    }//GEN-LAST:event_btnDeleteTaskActionPerformed
 
     /**
      * Crea le righe all'interno della tabella indicando nome, durata, data di
@@ -468,6 +518,7 @@ public class App extends javax.swing.JFrame {
             editing = false;
             lblAddTask.setText("Aggiungi una nuova attività");
             btnAdd.setText("Aggiungi");
+            btnDeleteTask.setEnabled(false);
         }
     }
 
@@ -548,6 +599,7 @@ public class App extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAdd;
     private javax.swing.JButton btnDeleteAll;
+    private javax.swing.JButton btnDeleteTask;
     private javax.swing.JLabel lblAddTask;
     private javax.swing.JLabel lblDependencies;
     private javax.swing.JLabel lblDuration;

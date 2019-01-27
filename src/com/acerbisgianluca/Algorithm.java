@@ -262,4 +262,14 @@ public class Algorithm {
             tasksLSLF.get(i).resetToDefault();
         }
     }
+    
+    /**
+     * Rimuove da entrambe le liste le 2 attività passate come argomento, una per ogni lista.
+     * @param tESEF L'attività da rimuovere dalla lista ESEF.
+     * @param tLSLF L'attività da rimuovere dalla lista LSLF.
+     */
+    public void removeFromLists(Task tESEF, Task tLSLF){
+        tasksESEF.remove(tESEF);
+        tasksLSLF.remove(tLSLF);
+    }
 }
