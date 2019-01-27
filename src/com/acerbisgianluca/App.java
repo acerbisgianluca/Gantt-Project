@@ -3,6 +3,7 @@ package com.acerbisgianluca;
 import com.acerbisgianluca.exceptions.TaskAlreadyExistsException;
 import com.acerbisgianluca.exceptions.TaskNotFoundException;
 import java.awt.Color;
+import java.awt.event.KeyEvent;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -10,9 +11,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javafx.scene.control.TreeItem;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
@@ -154,6 +152,11 @@ public class App extends javax.swing.JFrame {
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tableMouseClicked(evt);
+            }
+        });
+        table.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                tableKeyPressed(evt);
             }
         });
         tableScrollPane.setViewportView(table);
@@ -307,8 +310,8 @@ public class App extends javax.swing.JFrame {
                     if (i == 0 || listModel.getElementAt(i).equals(this.lastName)) {
                         continue;
                     }
-                    
-                    if(algorithm.getTaskByName(listModel.getElementAt(i), true).getDependencies().contains(newESEF)){
+
+                    if (algorithm.getTaskByName(listModel.getElementAt(i), true).getDependencies().contains(newESEF)) {
                         showMessage("Rilevato ciclo fra 2 attività.", true);
                         return;
                     }
@@ -321,7 +324,7 @@ public class App extends javax.swing.JFrame {
                         tLSLF.addParent(newLSLF);
                     }
                 }
-                
+
                 newLSLF.update(name, localDate, duration);
                 newESEF.update(name, localDate, duration);
                 showResult();
@@ -332,7 +335,7 @@ public class App extends javax.swing.JFrame {
                         break;
                     }
                 }
-                
+
                 for (int i = 1; i < listModel.size(); i++) {
                     if (!listDependencies.isSelectedIndex(i)) {
                         if (newESEF.getDependencies().contains((tESEF = algorithm.getTaskByName(listModel.getElementAt(i), true)))) {
@@ -415,6 +418,46 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_btnDeleteAllActionPerformed
 
     /**
+     * Elimina l'attività dalle liste, dalla tabella, dalla lista di dipendenze
+     * e da tutte le attività ad essa collegate.
+     *
+     * @param evt L'evento generato al click sul bottone per eliminare
+     * un'attività.
+     */
+    private void btnDeleteTaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteTaskActionPerformed
+        int row = table.getSelectedRow();
+        String name = (String) table.getValueAt(row, 0);
+        Task tESEF, tLSLF;
+        try {
+            tESEF = algorithm.getTaskByName(name, true);
+            tLSLF = algorithm.getTaskByName(name, false);
+
+            tESEF.getDependencies().forEach((t) -> {
+                t.removeParent(tESEF);
+            });
+            tESEF.getParents().forEach((t) -> {
+                t.removeDependency(tESEF);
+            });
+            tLSLF.getDependencies().forEach((t) -> {
+                t.removeParent(tLSLF);
+            });
+            tLSLF.getParents().forEach((t) -> {
+                t.removeDependency(tLSLF);
+            });
+
+            algorithm.removeFromLists(tESEF, tLSLF);
+        } catch (TaskNotFoundException ex) {
+            showMessage(ex.getMessage(), true);
+        }
+
+        tableModel.removeRow(row);
+        listModel.removeElement(name);
+
+        cleanFields(false);
+        realTimeRun();
+    }//GEN-LAST:event_btnDeleteTaskActionPerformed
+
+    /**
      * Carica nel form i dati del {@link com.acerbisgianluca.Task} selezionato.
      *
      * @param evt L'evento generato al click su di una riga della tabella.
@@ -459,45 +502,16 @@ public class App extends javax.swing.JFrame {
     }//GEN-LAST:event_tableMouseClicked
 
     /**
-     * Elimina l'attività dalle liste, dalla tabella, dalla lista di dipendenze
-     * e da tutte le attività ad essa collegate.
+     * Blocca la propagazione del click delle frecce verso l'alto e il basso per
+     * evitare bug con la tabella.
      *
-     * @param evt L'evento generato al click sul bottone per eliminare
-     * un'attività.
+     * @param evt L'evente generato al click di un tasto della tastiera.
      */
-    private void btnDeleteTaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteTaskActionPerformed
-        int row = table.getSelectedRow();
-        String name = (String) table.getValueAt(row, 0);
-        Task tESEF, tLSLF;
-        try {
-            tESEF = algorithm.getTaskByName(name, true);
-            tLSLF = algorithm.getTaskByName(name, false);
+    private void tableKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tableKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_UP || evt.getKeyCode() == KeyEvent.VK_DOWN)
+            evt.consume();
+    }//GEN-LAST:event_tableKeyPressed
 
-            tESEF.getDependencies().forEach((t) -> {
-                t.removeParent(tESEF);
-            });
-            tESEF.getParents().forEach((t) -> {
-                t.removeDependency(tESEF);
-            });
-            tLSLF.getDependencies().forEach((t) -> {
-                t.removeParent(tLSLF);
-            });
-            tLSLF.getParents().forEach((t) -> {
-                t.removeDependency(tLSLF);
-            });
-
-            algorithm.removeFromLists(tESEF, tLSLF);
-        } catch (TaskNotFoundException ex) {
-            showMessage(ex.getMessage(), true);
-        }
-
-        tableModel.removeRow(row);
-        listModel.removeElement(name);
-
-        cleanFields(false);
-        realTimeRun();
-    }//GEN-LAST:event_btnDeleteTaskActionPerformed
-    
     /**
      * Crea le righe all'interno della tabella indicando nome, durata, data di
      * inizio ES, data di fine EF, data di inizio LS e data di fine LF di ogni
