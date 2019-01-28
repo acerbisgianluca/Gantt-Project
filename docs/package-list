@@ -1,2 +1,3 @@
-com.acerbisgianluca
-com.acerbisgianluca.exceptions
+com.acerbisgianluca.ganttproject.exceptions
+com.acerbisgianluca.ganttproject.gui
+com.acerbisgianluca.ganttproject.utilities

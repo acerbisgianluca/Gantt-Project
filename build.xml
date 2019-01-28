@@ -70,4 +70,20 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="-pre-init">
+        <property name="project.name" value="Gantt Project" />
+        <property name="project.package" value="com.acerbisgianluca.ganttproject" />
+        <property name="version.num" value="1.2.0" />
+        <property name="vendor.name" value="Acerbis Gianluca" />
+
+        <manifest file="MANIFEST.MF">
+            <attribute name="Built-By" value="Acerbis Gianluca"/>
+                <attribute name="Specification-Title" value="${project.name}" />           
+                <attribute name="Specification-Version" value="${version.num}" />           
+                <attribute name="Specification-Vendor" value="${vendor.name}" />
+                <attribute name="Implementation-Title" value="${project.package}" />
+                <attribute name="Implementation-Version" value="${version.num}" />
+                <attribute name="Implementation-Vendor" value="${vendor.name}" />
+        </manifest>
+    </target>
 </project>
