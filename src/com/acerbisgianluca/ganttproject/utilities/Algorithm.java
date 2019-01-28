@@ -1,6 +1,6 @@
-package com.acerbisgianluca;
+package com.acerbisgianluca.ganttproject.utilities;
 
-import com.acerbisgianluca.exceptions.TaskNotFoundException;
+import com.acerbisgianluca.ganttproject.exceptions.TaskNotFoundException;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -48,11 +48,13 @@ public class Algorithm implements Serializable {
     }
 
     /**
-     * Aggiunge un {@link com.acerbisgianluca.Task} ad una delle 2 liste in base
-     * al secondo paramentro.
+     * Aggiunge un {@link com.acerbisgianluca.ganttproject.utilities.Task} ad
+     * una delle 2 liste in base al secondo paramentro.
      *
-     * @param t Il {@link com.acerbisgianluca.Task} da aggiungere.
-     * @param esef Se è vero il {@link com.acerbisgianluca.Task} viene aggiunto
+     * @param t Il {@link com.acerbisgianluca.ganttproject.utilities.Task} da
+     * aggiungere.
+     * @param esef Se è vero il
+     * {@link com.acerbisgianluca.ganttproject.utilities.Task} viene aggiunto
      * alla lista ES/EF, altrimenti a LS/LF.
      * @return Vero se l'operazione è andata a buon fine, altrimenti falso.
      */
@@ -207,15 +209,18 @@ public class Algorithm implements Serializable {
     }
 
     /**
-     * Cerca un {@link com.acerbisgianluca.Task} in una delle 2 liste in base al
-     * secondo paramentro.
+     * Cerca un {@link com.acerbisgianluca.ganttproject.utilities.Task} in una
+     * delle 2 liste in base al secondo paramentro.
      *
-     * @param name Il nome del {@link com.acerbisgianluca.Task} da cercare.
-     * @param esef Se è vero il {@link com.acerbisgianluca.Task} viene cercato
+     * @param name Il nome del
+     * {@link com.acerbisgianluca.ganttproject.utilities.Task} da cercare.
+     * @param esef Se è vero il
+     * {@link com.acerbisgianluca.ganttproject.utilities.Task} viene cercato
      * nella lista ES/EF, altrimenti in LS/LF.
-     * @return Il {@link com.acerbisgianluca.Task} trovato.
+     * @return Il {@link com.acerbisgianluca.ganttproject.utilities.Task}
+     * trovato.
      * @throws TaskNotFoundException Viene lanciata se non viene trovato alcun
-     * {@link com.acerbisgianluca.Task} con il nome dato.
+     * {@link com.acerbisgianluca.ganttproject.utilities.Task} con il nome dato.
      */
     public Task getTaskByName(String name, boolean esef) throws TaskNotFoundException {
         for (Task t : esef ? tasksESEF : tasksLSLF) {
@@ -254,8 +259,9 @@ public class Algorithm implements Serializable {
     }
 
     /**
-     * Ripristina la data di default per ogni {@link com.acerbisgianluca.Task}
-     * in entrambe le liste.
+     * Ripristina la data di default per ogni
+     * {@link com.acerbisgianluca.ganttproject.utilities.Task} in entrambe le
+     * liste.
      */
     public void resetForRunning() {
         for (int i = 0; i < tasksESEF.size(); i++) {

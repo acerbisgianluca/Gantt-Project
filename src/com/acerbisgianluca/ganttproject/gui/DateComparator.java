@@ -1,4 +1,4 @@
-package com.acerbisgianluca;
+package com.acerbisgianluca.ganttproject.gui;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
