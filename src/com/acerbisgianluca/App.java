@@ -594,7 +594,16 @@ public class App extends javax.swing.JFrame {
      */
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         try {
-            FileManager.objectToFile(algorithm, "tasks.gantt");
+            JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
+            fc.setFileFilter(fileFilter);
+            fc.showSaveDialog(this);
+            File selecedFile = fc.getSelectedFile();
+            if(selecedFile == null){
+                showMessage("Seleziona un file da caricare.", true);
+                return;
+            }
+                
+            this.algorithm = (Algorithm) FileManager.fileToObject(selecedFile.getAbsolutePath());
             showMessage("Salvataggio avvenuto con successo.", false);
         } catch (IOException ex) {
             showMessage("Errore nel salvataggio del file.", true);
@@ -609,7 +618,16 @@ public class App extends javax.swing.JFrame {
      */
     private void btnLoadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoadActionPerformed
         try {
-            this.algorithm = (Algorithm) FileManager.fileToObject("tasks.gantt");
+            JFileChooser fc = new JFileChooser(System.getProperty("user.dir"));
+            fc.setFileFilter(fileFilter);
+            fc.showOpenDialog(this);
+            File selecedFile = fc.getSelectedFile();
+            if(selecedFile == null){
+                showMessage("Seleziona un file da caricare.", true);
+                return;
+            }
+                
+            this.algorithm = (Algorithm) FileManager.fileToObject(selecedFile.getAbsolutePath());
             this.algorithm.getTasksESEF().forEach((t) -> {
                 listModel.addElement(t.getName());
             });
