@@ -26,6 +26,8 @@ public final class VersionManager {
     }
 
     /**
+     * Scarica il JSON contente le versioni rilasciate e controlla se l'ultima
+     * combacia o meno con quella in esecuzione.
      *
      * @param current La versione attuale.
      * @return Vero se c'è una nuova versione, falso altrimenti.

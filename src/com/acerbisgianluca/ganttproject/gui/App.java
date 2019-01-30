@@ -872,6 +872,7 @@ public class App extends javax.swing.JFrame {
             ImageIcon img = new ImageIcon(url);
             app.setIconImage(img.getImage());
             app.setVisible(true);
+            System.setProperty("java.net.useSystemProxies", "true");
         });
     }
 
