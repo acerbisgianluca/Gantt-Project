@@ -381,13 +381,12 @@ public class App extends javax.swing.JFrame {
             fc.showSaveDialog(this);
             File selecedFile = fc.getSelectedFile();
             if (selecedFile == null) {
-                showMessage("Seleziona un file da caricare.", true);
+                showMessage("Inserisci un nome per il file da salvare.", true);
                 return;
             }
-
-            this.algorithm = (Algorithm) FileManager.fileToObject(selecedFile.getAbsolutePath() + ".gantt");
+            FileManager.objectToFile(this.algorithm, selecedFile.getAbsolutePath() + ".gantt");
             showMessage("Salvataggio avvenuto con successo.", false);
-        } catch (IOException | ClassNotFoundException ex) {
+        } catch (IOException ex) {
             showMessage("Errore nel salvataggio del file.", true);
         }
     }//GEN-LAST:event_btnSaveActionPerformed
@@ -414,8 +413,8 @@ public class App extends javax.swing.JFrame {
                 listModel.addElement(t.getName());
             });
 
-            showResult();
             showMessage("File caricato con successo.", false);
+            realTimeRun();
         } catch (IOException | ClassNotFoundException ex) {
             showMessage("Errore nella lettura del file. Se non hai ancora salvato, fallo!", true);
         }
@@ -493,7 +492,7 @@ public class App extends javax.swing.JFrame {
                     if (i == 0 || listModel.getElementAt(i).equals(this.lastName)) {
                         continue;
                     }
-                    
+
                     if (algorithm.getTaskByName(listModel.getElementAt(i), true).getDependencies().contains(newESEF)) {
                         showMessage("Rilevato ciclo fra " + listModel.getElementAt(i) + " e " + name + " (nome precedente: " + this.lastName + ") attività.", true);
                         return;

@@ -2,7 +2,8 @@ package com.acerbisgianluca.ganttproject.exceptions;
 
 /**
  * Eccezione lanciata quando si tenta di inserire un
- * {@link com.acerbisgianluca.ganttproject.utilities.Task} con un nome già presente.
+ * {@link com.acerbisgianluca.ganttproject.utilities.Task} con un nome già
+ * presente.
  *
  * @author Gianluca
  */

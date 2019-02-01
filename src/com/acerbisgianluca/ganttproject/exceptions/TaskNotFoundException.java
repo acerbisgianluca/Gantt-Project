@@ -2,7 +2,8 @@ package com.acerbisgianluca.ganttproject.exceptions;
 
 /**
  * Eccezione usata quando si tenta di recuperare un
- * {@link com.acerbisgianluca.ganttproject.utilities.Task} con un nome che non esiste.
+ * {@link com.acerbisgianluca.ganttproject.utilities.Task} con un nome che non
+ * esiste.
  *
  * @author Gianluca
  */
