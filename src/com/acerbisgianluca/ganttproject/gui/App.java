@@ -713,14 +713,13 @@ public class App extends javax.swing.JFrame {
     private void btnCheckUpdateActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCheckUpdateActionPerformed
         try {
             Package jarPackage = getClass().getPackage();
-            showMessage("Versione corrente: " + jarPackage.getSpecificationVersion(), false);
             boolean newVersion = VersionManager.checkVersion(jarPackage.getSpecificationVersion());
             if (newVersion) {
-                if (JOptionPane.showConfirmDialog(this, "E' disponibile una nuova versione! Vuoi scaricarla?", "Controllo aggiornamento", JOptionPane.YES_NO_OPTION) == 0) {
+                if (JOptionPane.showConfirmDialog(this, "E' disponibile una nuova versione! Vuoi scaricarla?", "Versione corrente: " + jarPackage.getSpecificationVersion(), JOptionPane.YES_NO_OPTION) == 0) {
                     openBrowser("https://github.com/acerbisgianluca/Gantt-Project/releases/latest");
                 }
             } else {
-                JOptionPane.showMessageDialog(this, "Stai già eseguendo l'ultima versione!", "Controllo aggiornamento", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Stai già eseguendo l'ultima versione!", "Versione corrente: " + jarPackage.getSpecificationVersion(), JOptionPane.INFORMATION_MESSAGE);
             }
         } catch (MalformedURLException | CannotCheckVersionException ex) {
             showMessage("Attualmente è impossibile controllare l'ultima versione rilasciata.", true);
