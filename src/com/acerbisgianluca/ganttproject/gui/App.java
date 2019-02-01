@@ -490,6 +490,10 @@ public class App extends javax.swing.JFrame {
 
                 int[] dependenciesIds = listDependencies.getSelectedIndices();
                 for (int i : dependenciesIds) {
+                    if (i == 0 || listModel.getElementAt(i).equals(this.lastName)) {
+                        continue;
+                    }
+                    
                     if (algorithm.getTaskByName(listModel.getElementAt(i), true).getDependencies().contains(newESEF)) {
                         showMessage("Rilevato ciclo fra " + listModel.getElementAt(i) + " e " + name + " (nome precedente: " + this.lastName + ") attività.", true);
                         return;
