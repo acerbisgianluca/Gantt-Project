@@ -37,6 +37,9 @@ public class Algorithm implements Serializable {
      */
     private final List<LocalDate> endDates;
 
+    private double totalEt;
+    private double totalSd;
+    
     /**
      * Crea un Algorithm ed inizializza tutte le liste.
      */
@@ -122,6 +125,15 @@ public class Algorithm implements Serializable {
             if(t.getStart().equals(t1.getStart()))
                 t1.setCritica();
         }
+        
+        totalEt = totalSd = 0;
+        tasksLSLF.forEach((Task t) -> {
+            if(t.isCritica()){
+                totalEt += t.getEt();
+                totalSd += Math.pow(t.getSd(), 2);
+            }
+        });
+        totalSd = Math.sqrt(totalSd);
         
         // Calcolo la durata effettiva
         long diff = java.sql.Date.valueOf(Collections.max(this.endDates)).getTime() - java.sql.Date.valueOf(Collections.min(this.startDates)).getTime();

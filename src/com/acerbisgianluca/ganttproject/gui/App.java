@@ -143,7 +143,6 @@ public class App extends javax.swing.JFrame {
 
         lblDependencies.setText("Precedenze");
 
-        listDependencies.setLayoutOrientation(javax.swing.JList.VERTICAL_WRAP);
         listScrollPane.setViewportView(listDependencies);
 
         btnAdd.setText("Aggiungi");
@@ -274,10 +273,10 @@ public class App extends javax.swing.JFrame {
                                 .addComponent(btnDeleteTask)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                                 .addComponent(btnDeleteAll))
-                            .addComponent(listScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 427, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(listScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lblOutput, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         file.setText("File");

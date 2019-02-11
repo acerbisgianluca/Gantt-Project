@@ -44,7 +44,21 @@ public class Task implements Serializable {
      * Indica se l'attività è critica o meno. In caso positivo non è possibile spostarla.
      */
     private boolean critica;
-
+    /**
+     *
+     */
+    private double et;
+    /**
+     * 
+     */
+    private double sd;
+    /**
+     * 
+     */
+    private int a;
+    private int m;
+    private int b;
+    
     /**
      * Crea un nuovo Task (attività).
      *
@@ -61,6 +75,8 @@ public class Task implements Serializable {
         this.dependencies = new ArrayList<>();
         this.end = start.plusDays(duration - 1);
         this.critica = false;
+        this.et = (this.a + (4 * this.m) + this.b) / 6;
+        this.sd = (this.b - this.a) / 6;
     }
 
     /**
@@ -232,4 +248,12 @@ public class Task implements Serializable {
     public void setCritica() {
         this.critica = true;
     }
+
+    public double getEt() {
+        return et;
+    }
+
+    public double getSd() {
+        return sd;
+    }    
 }
