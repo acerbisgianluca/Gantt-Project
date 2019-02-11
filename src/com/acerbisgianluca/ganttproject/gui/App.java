@@ -173,14 +173,14 @@ public class App extends javax.swing.JFrame {
 
             },
             new String [] {
-                "Nome", "Durata", "Early Start", "Early Finish", "Late Start", "Late Finish"
+                "Nome", "Durata", "Early Start", "Early Finish", "Late Start", "Late Finish", "Critica"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -192,7 +192,6 @@ public class App extends javax.swing.JFrame {
             }
         });
         table.setDragEnabled(true);
-        table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tableMouseClicked(evt);
@@ -756,7 +755,7 @@ public class App extends javax.swing.JFrame {
         for (int i = 0; i < esef.size(); i++) {
             t = esef.get(i);
             t1 = lslf.get(i);
-            tableModel.addRow(new Object[]{t.getName(), t.getDuration(), t.getStart().format(this.fmt), t.getEnd().format(this.fmt), t1.getStart().format(this.fmt), t1.getEnd().format(this.fmt)});
+            tableModel.addRow(new Object[]{t.getName(), t.getDuration(), t.getStart().format(this.fmt), t.getEnd().format(this.fmt), t1.getStart().format(this.fmt), t1.getEnd().format(this.fmt), t1.isCritica() ? "Si" : "No"});
         }
     }
 

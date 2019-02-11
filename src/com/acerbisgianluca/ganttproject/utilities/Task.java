@@ -40,6 +40,10 @@ public class Task implements Serializable {
      * La data di fine.
      */
     private LocalDate end;
+    /**
+     * Indica se l'attività è critica o meno. In caso positivo non è possibile spostarla.
+     */
+    private boolean critica;
 
     /**
      * Crea un nuovo Task (attività).
@@ -56,6 +60,7 @@ public class Task implements Serializable {
         this.parents = new ArrayList<>();
         this.dependencies = new ArrayList<>();
         this.end = start.plusDays(duration - 1);
+        this.critica = false;
     }
 
     /**
@@ -218,5 +223,13 @@ public class Task implements Serializable {
      */
     public LocalDate getDefaultDate() {
         return defaultDate;
+    }
+
+    public boolean isCritica() {
+        return critica;
+    }
+
+    public void setCritica() {
+        this.critica = true;
     }
 }

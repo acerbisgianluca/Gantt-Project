@@ -116,6 +116,13 @@ public class Algorithm implements Serializable {
             }
         });
 
+        for(int i = 0; i < tasksESEF.size(); i++){
+            Task t = tasksESEF.get(i);
+            Task t1 = tasksLSLF.get(i);
+            if(t.getStart().equals(t1.getStart()))
+                t1.setCritica();
+        }
+        
         // Calcolo la durata effettiva
         long diff = java.sql.Date.valueOf(Collections.max(this.endDates)).getTime() - java.sql.Date.valueOf(Collections.min(this.startDates)).getTime();
         return (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) + 1;
