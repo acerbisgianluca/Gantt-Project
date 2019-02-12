@@ -37,8 +37,8 @@ public class Algorithm implements Serializable {
      */
     private final List<LocalDate> endDates;
 
-    private double totalEt;
-    private double totalSd;
+    private int totalEt;
+    private int totalSd;
     
     /**
      * Crea un Algorithm ed inizializza tutte le liste.
@@ -133,7 +133,7 @@ public class Algorithm implements Serializable {
                 totalSd += Math.pow(t.getSd(), 2);
             }
         });
-        totalSd = Math.sqrt(totalSd);
+        totalSd = (int) Math.sqrt(totalSd);
         
         // Calcolo la durata effettiva
         long diff = java.sql.Date.valueOf(Collections.max(this.endDates)).getTime() - java.sql.Date.valueOf(Collections.min(this.startDates)).getTime();
@@ -299,5 +299,13 @@ public class Algorithm implements Serializable {
     public void removeFromLists(Task tESEF, Task tLSLF) {
         tasksESEF.remove(tESEF);
         tasksLSLF.remove(tLSLF);
+    }
+    
+    public int getTotalEt() {
+        return totalEt;
+    }
+
+    public int getTotalSd() {
+        return totalSd;
     }
 }

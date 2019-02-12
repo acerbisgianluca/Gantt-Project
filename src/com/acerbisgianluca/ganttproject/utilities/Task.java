@@ -1,6 +1,7 @@
 package com.acerbisgianluca.ganttproject.utilities;
 
 import java.io.Serializable;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,24 +42,26 @@ public class Task implements Serializable {
      */
     private LocalDate end;
     /**
-     * Indica se l'attività è critica o meno. In caso positivo non è possibile spostarla.
+     * Indica se l'attività è critica o meno. In caso positivo non è possibile
+     * spostarla.
      */
     private boolean critica;
     /**
      *
      */
-    private double et;
+    private int et;
     /**
-     * 
+     *
      */
-    private double sd;
+    private int sd;
     /**
-     * 
+     *
      */
     private int a;
     private int m;
     private int b;
-    
+    private boolean advanced;
+
     /**
      * Crea un nuovo Task (attività).
      *
@@ -75,8 +78,26 @@ public class Task implements Serializable {
         this.dependencies = new ArrayList<>();
         this.end = start.plusDays(duration - 1);
         this.critica = false;
+        this.et = duration;
+        this.sd = 0;
+        this.advanced = false;
+    }
+
+    public Task(String name, LocalDate start, int a, int m, int b) {
+        this.name = name;
+        this.start = start.plusDays(0);
+        this.defaultDate = start.plusDays(0);
+        this.parents = new ArrayList<>();
+        this.dependencies = new ArrayList<>();
+        this.end = start.plusDays(duration - 1);
+        this.critica = false;
+        this.a = a;
+        this.m = m;
+        this.b = b;
         this.et = (this.a + (4 * this.m) + this.b) / 6;
         this.sd = (this.b - this.a) / 6;
+        this.duration = this.et;
+        this.advanced = true;
     }
 
     /**
@@ -221,7 +242,31 @@ public class Task implements Serializable {
         this.start = date.plusDays(0);
         this.defaultDate = date.plusDays(0);
         this.end = this.start.plusDays(duration - 1);
+        this.et = duration;
+        this.sd = 0;
         this.duration = duration;
+    }
+
+    /**
+     * Aggiorna i dati di un Task in base a quelli passati nel form.
+     *
+     * @param name Il nome nuovo.
+     * @param date La nuova data di inizio.
+     * @param a
+     * @param m
+     * @param b
+     */
+    public void update(String name, LocalDate date, int a, int m, int b) {
+        this.name = name;
+        this.start = date.plusDays(0);
+        this.defaultDate = date.plusDays(0);
+        this.end = this.start.plusDays(duration - 1);
+        this.a = a;
+        this.m = m;
+        this.b = b;
+        this.et = (this.a + (4 * this.m) + this.b) / 6;
+        this.sd = (this.b - this.a) / 6;
+        this.duration = this.et;
     }
 
     /**
@@ -230,6 +275,7 @@ public class Task implements Serializable {
     public void resetToDefault() {
         this.start = this.defaultDate.plusDays(0);
         this.end = this.start.plusDays(duration - 1);
+        this.critica = false;
     }
 
     /**
@@ -249,11 +295,27 @@ public class Task implements Serializable {
         this.critica = true;
     }
 
-    public double getEt() {
+    public int getEt() {
         return et;
     }
 
-    public double getSd() {
+    public int getSd() {
         return sd;
-    }    
+    }
+
+    public boolean isAdvanced() {
+        return advanced;
+    }
+
+    public int getA() {
+        return a;
+    }
+
+    public int getM() {
+        return m;
+    }
+
+    public int getB() {
+        return b;
+    }
 }
