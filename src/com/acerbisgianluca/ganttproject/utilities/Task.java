@@ -68,7 +68,6 @@ public class Task implements Serializable {
     private int a;
     private int m;
     private int b;
-    private final boolean advanced;
 
     /**
      * Crea un nuovo Task (attività).
@@ -80,8 +79,8 @@ public class Task implements Serializable {
      */
     public Task(String name, LocalDate start, int duration, List<DayOfWeek> list) {
         this.name = name;
-        this.earlyStart = start.plusDays(0);
-        this.lateStart = start.plusDays(0);
+        this.earlyStart = add(start, 0, list);
+        this.lateStart = add(start, 0, list);
         this.defaultDate = start.plusDays(0);
         this.duration = duration;
         this.parents = new ArrayList<>();
@@ -89,15 +88,17 @@ public class Task implements Serializable {
         this.earlyEnd = add(start, duration - 1, list);
         this.lateEnd = add(start, duration - 1, list);
         this.critica = false;
+        this.a = 1;
+        this.m = 1;
+        this.b = 1;
         this.et = duration;
         this.sd = 0;
-        this.advanced = false;
     }
 
     public Task(String name, LocalDate start, int a, int m, int b, List<DayOfWeek> list) {
         this.name = name;
-        this.earlyStart = start.plusDays(0);
-        this.lateStart = start.plusDays(0);
+        this.earlyStart = add(start, 0, list);
+        this.lateStart = add(start, 0, list);
         this.defaultDate = start.plusDays(0);
         this.parents = new ArrayList<>();
         this.dependencies = new ArrayList<>();
@@ -110,7 +111,6 @@ public class Task implements Serializable {
         this.et = (this.a + (4 * this.m) + this.b) / 6.0;
         this.sd = (this.b - this.a) / 6.0;
         this.duration = (int) this.et;
-        this.advanced = true;
     }
 
     /**
@@ -119,11 +119,11 @@ public class Task implements Serializable {
      * inizio + (durata - 1).
      *
      * @param start La data di inizio di un'altra attività.
-     * @param publicDays
+     * @param publicHolidays
      */
-    public void setEarlyStart(LocalDate start, List<DayOfWeek> publicDays) {
-        this.earlyStart = add(start, 1, publicDays);
-        this.earlyEnd = add(this.earlyStart, duration - 1, publicDays);
+    public void setEarlyStart(LocalDate start, List<DayOfWeek> publicHolidays) {
+        this.earlyStart = add(start, 1, publicHolidays);
+        this.earlyEnd = add(this.earlyStart, duration - 1, publicHolidays);
     }
 
     /**
@@ -132,11 +132,11 @@ public class Task implements Serializable {
      * - (durata - 1).
      *
      * @param finish La data di fine di un'altra attività.
-     * @param publicDays
+     * @param publicHolidays
      */
-    public void setLateFinish(LocalDate finish, List<DayOfWeek> publicDays) {
-        this.lateEnd = add(finish, -1, publicDays);
-        this.lateStart = add(this.lateEnd, -(duration - 1), publicDays);
+    public void setLateFinish(LocalDate finish, List<DayOfWeek> publicHolidays) {
+        this.lateEnd = add(finish, -1, publicHolidays);
+        this.lateStart = add(this.lateEnd, -(duration - 1), publicHolidays);
     }
 
     /**
@@ -181,15 +181,15 @@ public class Task implements Serializable {
      * @param name Il nome nuovo.
      * @param date La nuova data di inizio.
      * @param duration La nuova durata.
-     * @param publicDays
+     * @param publicHolidays
      */
-    public void update(String name, LocalDate date, int duration, List<DayOfWeek> publicDays) {
+    public void update(String name, LocalDate date, int duration, List<DayOfWeek> publicHolidays) {
         this.name = name;
-        this.earlyStart = date.plusDays(0);
-        this.lateStart = date.plusDays(0);
+        this.earlyStart = add(date, 0, publicHolidays);
+        this.lateStart = add(date, 0, publicHolidays);
         this.defaultDate = date.plusDays(0);
-        this.earlyEnd = add(this.earlyStart, duration - 1, publicDays);
-        this.lateEnd = add(this.earlyStart, duration - 1, publicDays);
+        this.earlyEnd = add(this.earlyStart, duration - 1, publicHolidays);
+        this.lateEnd = add(this.earlyStart, duration - 1, publicHolidays);
         this.et = duration;
         this.sd = 0;
         this.duration = duration;
@@ -203,15 +203,15 @@ public class Task implements Serializable {
      * @param a
      * @param m
      * @param b
-     * @param publicDays
+     * @param publicHolidays
      */
-    public void update(String name, LocalDate date, int a, int m, int b, List<DayOfWeek> publicDays) {
+    public void update(String name, LocalDate date, int a, int m, int b, List<DayOfWeek> publicHolidays) {
         this.name = name;
-        this.earlyStart = date.plusDays(0);
-        this.lateStart = date.plusDays(0);
+        this.earlyStart = add(date, 0, publicHolidays);
+        this.lateStart = add(date, 0, publicHolidays);
         this.defaultDate = date.plusDays(0);
-        this.earlyEnd = add(this.earlyStart, duration - 1, publicDays);
-        this.lateEnd = add(this.earlyStart, duration - 1, publicDays);
+        this.earlyEnd = add(this.earlyStart, duration - 1, publicHolidays);
+        this.lateEnd = add(this.earlyStart, duration - 1, publicHolidays);
         this.a = a;
         this.m = m;
         this.b = b;
@@ -222,34 +222,52 @@ public class Task implements Serializable {
 
     /**
      * Ripristina la data di inizio a quella di default.
-     * @param publicDays
+     *
+     * @param publicHolidays
      */
-    public void resetToDefault(List<DayOfWeek> publicDays) {
-        this.earlyStart = this.defaultDate.plusDays(0);
-        this.lateStart = this.defaultDate.plusDays(0);
-        this.earlyEnd = add(this.earlyStart, duration - 1, publicDays);
-        this.lateEnd = add(this.earlyStart, duration - 1, publicDays);
+    public void resetToDefault(List<DayOfWeek> publicHolidays) {
+        this.earlyStart = add(this.defaultDate, 0, publicHolidays);
+        this.lateStart = add(this.defaultDate, 0, publicHolidays);
+        this.earlyEnd = add(this.earlyStart, duration - 1, publicHolidays);
+        this.lateEnd = add(this.earlyStart, duration - 1, publicHolidays);
         this.critica = false;
     }
-    
-    private LocalDate add(LocalDate start, int businessDay, List<DayOfWeek> list){
-        if(Math.abs(businessDay) < 1)
-            return start;
-        if(list.isEmpty())
+
+    private LocalDate add(LocalDate start, int businessDay, List<DayOfWeek> list) {
+        if (list.isEmpty()) {
             return start.plusDays(businessDay);
-        
-        boolean positive = businessDay > 0;
+        }
+
+        boolean positive = businessDay >= 0;
         int dur = Math.abs(businessDay);
         int added = 0;
-        while(added < dur){
-            if(positive)
-                start = start.plusDays(1);
-            else
-                start = start.minusDays(1);
-            if(!list.contains(start.getDayOfWeek()))
-                ++added;
+        if (dur == 0) {
+            while (added <= dur) {
+                if (!list.contains(start.getDayOfWeek())) {
+                    ++added;
+                    break;
+                }
+
+                if (positive) {
+                    start = start.plusDays(1);
+                } else {
+                    start = start.minusDays(1);
+                }
+            }
+        } else {
+            while (added < dur) {
+                if (positive) {
+                    start = start.plusDays(1);
+                } else {
+                    start = start.minusDays(1);
+                }
+
+                if (!list.contains(start.getDayOfWeek())) {
+                    ++added;
+                }
+            }
         }
-        
+
         return start;
     }
 
@@ -315,9 +333,5 @@ public class Task implements Serializable {
 
     public int getB() {
         return b;
-    }
-
-    public boolean isAdvanced() {
-        return advanced;
     }
 }

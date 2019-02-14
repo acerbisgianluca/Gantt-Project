@@ -539,13 +539,14 @@ public class App extends javax.swing.JFrame {
             this.algorithm.getTasks().forEach((t) -> {
                 listModel.addElement(t.getName());
             });
-            
+
             int cont = 0;
             int[] arr = new int[algorithm.getPublicDays().size()];
-            for(DayOfWeek day : algorithm.getPublicDays())
+            for (DayOfWeek day : algorithm.getPublicDays()) {
                 arr[cont++] = day.getValue() - 1;
+            }
             listPublicHolidays.setSelectedIndices(arr);
-            
+
             showMessage("File caricato con successo.", false);
             realTimeRun();
         } catch (IOException | ClassNotFoundException ex) {
@@ -793,11 +794,9 @@ public class App extends javax.swing.JFrame {
             spnDuration.setValue((int) table.getValueAt(row, 1));
             Task t = algorithm.getTaskByName(name);
             spnDate.setValue(java.sql.Date.valueOf(t.getDefaultDate()));
-            if(t.isAdvanced()){
-                spnA.setValue(t.getA());
-                spnM.setValue(t.getM());
-                spnB.setValue(t.getB());
-            }
+            spnA.setValue(t.getA());
+            spnM.setValue(t.getM());
+            spnB.setValue(t.getB());
             List<Integer> selectedIndeces = new ArrayList<>();
             for (int i = 0; i < listModel.size(); i++) {
                 for (int j = 0; j < t.getDependencies().size(); j++) {
@@ -873,10 +872,10 @@ public class App extends javax.swing.JFrame {
 
     private void btnPublicDaysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPublicDaysActionPerformed
         List<DayOfWeek> list = new ArrayList<>();
-        for(int i : listPublicHolidays.getSelectedIndices()){
+        for (int i : listPublicHolidays.getSelectedIndices()) {
             list.add(DayOfWeek.of(i + 1));
         }
-        if(list.size() == 7){
+        if (list.size() == 7) {
             showMessage("Non è possibile selezionare tutti i giorni.", true);
             return;
         }
@@ -884,7 +883,7 @@ public class App extends javax.swing.JFrame {
         realTimeRun();
     }//GEN-LAST:event_btnPublicDaysActionPerformed
 
-    private void toggleAdvanced(){
+    private void toggleAdvanced() {
         lblA.setEnabled(isAdvanced);
         lblM.setEnabled(isAdvanced);
         lblB.setEnabled(isAdvanced);
@@ -894,7 +893,7 @@ public class App extends javax.swing.JFrame {
         btnPublicDays.setEnabled(isAdvanced);
         listPublicHolidays.setEnabled(isAdvanced);
     }
-    
+
     /**
      * Recupera il browser predefinito dell'utente e apre il link passato come
      * argomento.
