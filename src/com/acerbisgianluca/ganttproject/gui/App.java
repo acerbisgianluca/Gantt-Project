@@ -22,8 +22,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Function;
-import javafx.scene.control.DatePicker;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -197,7 +195,7 @@ public class App extends javax.swing.JFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class
+                java.lang.String.class, java.lang.Double.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Double.class, java.lang.Double.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, false, false, false, false, false
@@ -538,7 +536,7 @@ public class App extends javax.swing.JFrame {
             }
 
             this.algorithm = (Algorithm) FileManager.fileToObject(selecedFile.getAbsolutePath());
-            this.algorithm.getTasksESEF().forEach((t) -> {
+            this.algorithm.getTasks().forEach((t) -> {
                 listModel.addElement(t.getName());
             });
             
@@ -600,7 +598,7 @@ public class App extends javax.swing.JFrame {
      * {@link com.acerbisgianluca.ganttproject.utilities.Task}.
      */
     private void btnAddActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddActionPerformed
-        Task newESEF, newLSLF, tESEF, tLSLF;
+        Task newTask, t;
         try {
             if (editing) {
 
@@ -613,8 +611,7 @@ public class App extends javax.swing.JFrame {
                     taskExists(name);
                 }
 
-                newLSLF = algorithm.getTaskByName(this.lastName, false);
-                newESEF = algorithm.getTaskByName(this.lastName, true);
+                newTask = algorithm.getTaskByName(this.lastName);
 
                 Date date = (Date) spnDate.getModel().getValue();
                 LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
@@ -625,7 +622,7 @@ public class App extends javax.swing.JFrame {
                         continue;
                     }
 
-                    if (algorithm.getTaskByName(listModel.getElementAt(i), true).getDependencies().contains(newESEF)) {
+                    if (algorithm.getTaskByName(listModel.getElementAt(i)).getDependencies().contains(newTask)) {
                         showMessage("Rilevato ciclo fra " + listModel.getElementAt(i) + " e " + name + " (nome precedente: " + this.lastName + ") attività.", true);
                         return;
                     }
@@ -635,12 +632,10 @@ public class App extends javax.swing.JFrame {
                         continue;
                     }
 
-                    if (!newESEF.getDependencies().contains((tESEF = algorithm.getTaskByName(listModel.getElementAt(i), true)))) {
-                        newESEF.addDependency(tESEF);
-                        newLSLF.addDependency((tLSLF = algorithm.getTaskByName(listModel.getElementAt(i), false)));
+                    if (!newTask.getDependencies().contains((t = algorithm.getTaskByName(listModel.getElementAt(i))))) {
+                        newTask.addDependency(t);
 
-                        tESEF.addParent(newESEF);
-                        tLSLF.addParent(newLSLF);
+                        t.addParent(newTask);
                     }
                 }
 
@@ -648,13 +643,11 @@ public class App extends javax.swing.JFrame {
                     int a = (int) spnA.getModel().getValue() < 1 ? 1 : (int) spnA.getModel().getValue();
                     int m = (int) spnM.getModel().getValue() < 1 ? 1 : (int) spnM.getModel().getValue();
                     int b = (int) spnB.getModel().getValue() < 1 ? 1 : (int) spnB.getModel().getValue();
-                    newLSLF.update(name, localDate, a, m, b, algorithm.getPublicDays());
-                    newESEF.update(name, localDate, a, m, b, algorithm.getPublicDays());
+                    newTask.update(name, localDate, a, m, b, algorithm.getPublicDays());
                 } else {
                     int duration = (int) spnDuration.getModel().getValue();
                     duration = duration < 1 ? 1 : duration;
-                    newLSLF.update(name, localDate, duration, algorithm.getPublicDays());
-                    newESEF.update(name, localDate, duration, algorithm.getPublicDays());
+                    newTask.update(name, localDate, duration, algorithm.getPublicDays());
                 }
 
                 showResult();
@@ -668,12 +661,10 @@ public class App extends javax.swing.JFrame {
 
                 for (int i = 1; i < listModel.size(); i++) {
                     if (!listDependencies.isSelectedIndex(i)) {
-                        if (newESEF.getDependencies().contains((tESEF = algorithm.getTaskByName(listModel.getElementAt(i), true)))) {
-                            newESEF.removeDependency(tESEF);
-                            newLSLF.removeDependency((tLSLF = algorithm.getTaskByName(listModel.getElementAt(i), false)));
+                        if (newTask.getDependencies().contains((t = algorithm.getTaskByName(listModel.getElementAt(i))))) {
+                            newTask.removeDependency(t);
 
-                            tESEF.removeParent(newESEF);
-                            tLSLF.removeParent(newLSLF);
+                            t.removeParent(newTask);
                         }
                     }
                 }
@@ -697,13 +688,11 @@ public class App extends javax.swing.JFrame {
                 int a = (int) spnA.getModel().getValue() < 1 ? 1 : (int) spnA.getModel().getValue();
                 int m = (int) spnM.getModel().getValue() < 1 ? 1 : (int) spnM.getModel().getValue();
                 int b = (int) spnB.getModel().getValue() < 1 ? 1 : (int) spnB.getModel().getValue();
-                newESEF = new Task(name, localDate, a, m, b, algorithm.getPublicDays());
-                newLSLF = new Task(name, localDate, a, m, b, algorithm.getPublicDays());
+                newTask = new Task(name, localDate, a, m, b, algorithm.getPublicDays());
             } else {
                 int duration = (int) spnDuration.getModel().getValue();
                 duration = duration < 1 ? 1 : duration;
-                newESEF = new Task(name, localDate, duration, algorithm.getPublicDays());
-                newLSLF = new Task(name, localDate, duration, algorithm.getPublicDays());
+                newTask = new Task(name, localDate, duration, algorithm.getPublicDays());
             }
 
             int[] dependenciesIds = listDependencies.getSelectedIndices();
@@ -712,23 +701,18 @@ public class App extends javax.swing.JFrame {
                     continue;
                 }
 
-                tESEF = algorithm.getTaskByName(listModel.getElementAt(i), true);
-                tLSLF = algorithm.getTaskByName(listModel.getElementAt(i), false);
+                t = algorithm.getTaskByName(listModel.getElementAt(i));
 
-                newESEF.addDependency(tESEF);
-                newLSLF.addDependency(tLSLF);
+                newTask.addDependency(t);
 
-                tESEF.addParent(newESEF);
-                tLSLF.addParent(newLSLF);
+                t.addParent(newTask);
 
             }
 
-            algorithm.addTask(newESEF, true);
-            algorithm.addTask(newLSLF, false);
+            algorithm.addTask(newTask);
 
             listModel.addElement(name);
 
-            tableModel.addRow(new Object[]{name, newESEF.getDuration(), newESEF.getStart().format(this.fmt), newESEF.getEnd().format(this.fmt), newLSLF.getStart().format(this.fmt), newLSLF.getEnd().format(this.fmt)});
             cleanFields(false);
             realTimeRun();
         } catch (TaskNotFoundException | TaskAlreadyExistsException ex) {
@@ -746,25 +730,18 @@ public class App extends javax.swing.JFrame {
     private void btnDeleteTaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteTaskActionPerformed
         int row = table.getSelectedRow();
         String name = (String) table.getValueAt(row, 0);
-        Task tESEF, tLSLF;
+        Task t;
         try {
-            tESEF = algorithm.getTaskByName(name, true);
-            tLSLF = algorithm.getTaskByName(name, false);
+            t = algorithm.getTaskByName(name);
 
-            tESEF.getDependencies().forEach((t) -> {
-                t.removeParent(tESEF);
+            t.getDependencies().forEach((t1) -> {
+                t1.removeParent(t);
             });
-            tESEF.getParents().forEach((t) -> {
-                t.removeDependency(tESEF);
-            });
-            tLSLF.getDependencies().forEach((t) -> {
-                t.removeParent(tLSLF);
-            });
-            tLSLF.getParents().forEach((t) -> {
-                t.removeDependency(tLSLF);
+            t.getParents().forEach((t1) -> {
+                t1.removeDependency(t);
             });
 
-            algorithm.removeFromLists(tESEF, tLSLF);
+            algorithm.removeFromLists(t);
         } catch (TaskNotFoundException ex) {
             showMessage(ex.getMessage(), true);
         }
@@ -773,7 +750,7 @@ public class App extends javax.swing.JFrame {
         listModel.removeElement(name);
 
         cleanFields(false);
-        if (!this.algorithm.getTasksESEF().isEmpty()) {
+        if (!this.algorithm.getTasks().isEmpty()) {
             realTimeRun();
         }
     }//GEN-LAST:event_btnDeleteTaskActionPerformed
@@ -786,7 +763,7 @@ public class App extends javax.swing.JFrame {
      * {@link com.acerbisgianluca.ganttproject.utilities.Task}.
      */
     private void btnDeleteAllActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAllActionPerformed
-        if (algorithm.getTasksESEF().isEmpty()) {
+        if (algorithm.getTasks().isEmpty()) {
             showMessage("Non è stata ancora inserita alcuna attività.", true);
             return;
         }
@@ -814,17 +791,17 @@ public class App extends javax.swing.JFrame {
             this.lastName = name;
             txtName.setText(name);
             spnDuration.setValue((int) table.getValueAt(row, 1));
-            spnDate.setValue(java.sql.Date.valueOf(algorithm.getTaskByName(name, true).getDefaultDate()));
-            Task tLSLF = algorithm.getTaskByName(name, false);
-            if(tLSLF.isAdvanced()){
-                spnA.setValue(tLSLF.getA());
-                spnM.setValue(tLSLF.getM());
-                spnB.setValue(tLSLF.getB());
+            Task t = algorithm.getTaskByName(name);
+            spnDate.setValue(java.sql.Date.valueOf(t.getDefaultDate()));
+            if(t.isAdvanced()){
+                spnA.setValue(t.getA());
+                spnM.setValue(t.getM());
+                spnB.setValue(t.getB());
             }
             List<Integer> selectedIndeces = new ArrayList<>();
             for (int i = 0; i < listModel.size(); i++) {
-                for (int j = 0; j < tLSLF.getDependencies().size(); j++) {
-                    if (tLSLF.getDependencies().get(j).getName().equals(listModel.getElementAt(i))) {
+                for (int j = 0; j < t.getDependencies().size(); j++) {
+                    if (t.getDependencies().get(j).getName().equals(listModel.getElementAt(i))) {
                         selectedIndeces.add(i);
                     }
                 }
@@ -941,15 +918,11 @@ public class App extends javax.swing.JFrame {
      * attività.
      */
     public void showResult() {
-        List<Task> esef = algorithm.getTasksESEF();
-        List<Task> lslf = algorithm.getTasksLSLF();
-        Task t, t1;
         tableModel.setRowCount(0);
-        for (int i = 0; i < esef.size(); i++) {
-            t = esef.get(i);
-            t1 = lslf.get(i);
-            tableModel.addRow(new Object[]{t.getName(), t.getDuration(), t.getStart().format(this.fmt), t.getEnd().format(this.fmt), t1.getStart().format(this.fmt), t1.getEnd().format(this.fmt), t1.isCritica() ? "Si" : "No", t.getEt(), t.getSd()});
-        }
+        algorithm.getTasks().forEach((t) -> {
+            tableModel.addRow(new Object[]{t.getName(), t.getDuration(), t.getEarlyStart().format(this.fmt), t.getEarlyEnd().format(this.fmt), t.getLateStart().format(this.fmt), t.getLateEnd().format(this.fmt), t.isCritica() ? "Si" : "No", t.getEt(), t.getSd()});
+        });
+
     }
 
     /**
@@ -990,7 +963,7 @@ public class App extends javax.swing.JFrame {
      * la l'eccezione.
      */
     private void taskExists(String name) throws TaskAlreadyExistsException {
-        for (Task t : algorithm.getTasksESEF()) {
+        for (Task t : algorithm.getTasks()) {
             if (t.getName().equalsIgnoreCase(name)) {
                 throw new TaskAlreadyExistsException("Un'attività con lo stesso nome esiste già.");
             }
@@ -1004,7 +977,7 @@ public class App extends javax.swing.JFrame {
     private void realTimeRun() {
         algorithm.resetForRunning();
         int totalDuration = algorithm.run();
-        showMessage("La durata totale del ciclo di attività è di " + totalDuration + " giorni. Tempo previsto: " + algorithm.getTotalEt() + ". Deviazione standard: " + algorithm.getTotalSd() + ".", false);
+        showMessage("La durata totale del ciclo di attività è di " + totalDuration + " giorni. Tempo previsto: " + String.format("%.2f", algorithm.getTotalEt()) + ". Deviazione standard: " + String.format("%.2f", algorithm.getTotalSd()) + ".", false);
         showResult();
     }
 

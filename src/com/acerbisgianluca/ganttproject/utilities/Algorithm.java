@@ -21,14 +21,10 @@ import java.util.concurrent.TimeUnit;
 public class Algorithm implements Serializable {
 
     /**
-     * La lista di attività su cui lavora l'algoritmo Early Start / Early
+     * La lista di attività su cui lavora l'algoritmo.
      * Finish.
      */
-    private final List<Task> tasksESEF;
-    /**
-     * La lista di attività su cui lavora l'algoritmo Late Start / Late Finish.
-     */
-    private final List<Task> tasksLSLF;
+    private final List<Task> tasks;
     /**
      * La lista di tutte le date iniziali.
      */
@@ -38,19 +34,18 @@ public class Algorithm implements Serializable {
      */
     private final List<LocalDate> endDates;
 
-    private int totalEt;
-    private int totalSd;
+    private double totalEt;
+    private double totalSd;
     private List<DayOfWeek> publicDays;
     
     /**
      * Crea un Algorithm ed inizializza tutte le liste.
      */
     public Algorithm() {
-        tasksESEF = new ArrayList<>();
-        tasksLSLF = new ArrayList<>();
-        startDates = new ArrayList<>();
-        endDates = new ArrayList<>();
-        publicDays = new ArrayList<>();
+        this.tasks = new ArrayList<>();
+        this.startDates = new ArrayList<>();
+        this.endDates = new ArrayList<>();
+        this.publicDays = new ArrayList<>();
     }
 
     /**
@@ -59,13 +54,10 @@ public class Algorithm implements Serializable {
      *
      * @param t Il {@link com.acerbisgianluca.ganttproject.utilities.Task} da
      * aggiungere.
-     * @param esef Se è vero il
-     * {@link com.acerbisgianluca.ganttproject.utilities.Task} viene aggiunto
-     * alla lista ES/EF, altrimenti a LS/LF.
      * @return Vero se l'operazione è andata a buon fine, altrimenti falso.
      */
-    public boolean addTask(Task t, boolean esef) {
-        return esef ? tasksESEF.add(t) : tasksLSLF.add(t);
+    public boolean addTask(Task t) {
+        return this.tasks.add(t);
     }
 
     /**
@@ -79,21 +71,22 @@ public class Algorithm implements Serializable {
     public int run() {
         int maxDur = 0, dur;
         // Late Start Late Finish
-        for (Task t2 : tasksLSLF) {
-            if ((dur = totalDurationLate(t2, t2)) > maxDur) {
+        for (Task t : this.tasks) {
+            if ((dur = totalDurationLate(t, t)) > maxDur) {
                 maxDur = dur;
-            } else {
-                for (Task t1 : tasksLSLF) {
+            }
+            /*else {
+                for (Task t1 : tasks) {
                     if ((dur = totalDuration(t1)) > maxDur) {
                         maxDur = dur;
                     }
                 }
-            }
+            }*/
         }
         maxDur = 0;
         // Early Start Early Finish
-        for (Task t1 : tasksESEF) {
-            if ((dur = totalDuration(t1)) > maxDur) {
+        for (Task t : this.tasks) {
+            if ((dur = totalDuration(t)) > maxDur) {
                 maxDur = dur;
             }
         }
@@ -101,42 +94,39 @@ public class Algorithm implements Serializable {
         // Raccolgo tutte le date
         this.startDates.clear();
         this.endDates.clear();
-        tasksESEF.stream().map((t) -> {
-            this.startDates.add(t.getStart());
+        tasks.stream().map((t) -> {
+            this.startDates.add(t.getEarlyStart());
             return t;
         }).forEachOrdered((t) -> {
-            this.endDates.add(t.getEnd());
+            this.endDates.add(t.getEarlyEnd());
         });
 
         LocalDate lastDate = Collections.max(this.endDates);
 
         // Sistemo le attività che potrebbero non essere posizionate in fondo
-        tasksLSLF.forEach((t) -> {
+        this.tasks.forEach((t) -> {
             if (t.getParents().isEmpty() && t.getDependencies().isEmpty()) {
-                t.setLateFinish(lastDate.plusDays(1), publicDays);
+                t.setLateFinish(lastDate.plusDays(1), this.publicDays);
             } else if (t.getParents().isEmpty()) {
-                t.setLateFinish(lastDate.plusDays(1), publicDays);
+                t.setLateFinish(lastDate.plusDays(1), this.publicDays);
                 t.getDependencies().forEach((child) -> {
                     lastMove(child, t);
                 });
             }
         });
 
-        for(int i = 0; i < tasksESEF.size(); i++){
-            Task t = tasksESEF.get(i);
-            Task t1 = tasksLSLF.get(i);
-            if(t.getStart().equals(t1.getStart()))
-                t1.setCritica();
-        }
+        this.tasks.stream().filter((t) -> (t.getEarlyStart().equals(t.getLateStart()))).forEachOrdered((t) -> {
+            t.setCritica(true);
+        });
         
-        totalEt = totalSd = 0;
-        tasksLSLF.forEach((Task t) -> {
+        this.totalEt = this.totalSd = 0;
+        this.tasks.forEach((Task t) -> {
             if(t.isCritica()){
-                totalEt += t.getEt();
-                totalSd += Math.pow(t.getSd(), 2);
+                this.totalEt += t.getEt();
+                this.totalSd += Math.pow(t.getSd(), 2);
             }
         });
-        totalSd = (int) Math.sqrt(totalSd);
+        this.totalSd = Math.sqrt(this.totalSd);
         
         // Calcolo la durata effettiva
         long diff = java.sql.Date.valueOf(Collections.max(this.endDates)).getTime() - java.sql.Date.valueOf(Collections.min(this.startDates)).getTime();
@@ -145,15 +135,15 @@ public class Algorithm implements Serializable {
 
     private void lastMove(Task t, Task parent) {
         if (t.getParents().size() == 1) {
-            t.setLateFinish(parent.getStart(), publicDays);
+            t.setLateFinish(parent.getLateStart(), this.publicDays);
         } else {
-            LocalDate best = parent.getStart();
+            LocalDate best = parent.getLateStart();
             for (Task t1 : t.getParents()) {
-                if (t1.getStart().isBefore(best)) {
-                    best = t1.getStart();
+                if (t1.getLateStart().isBefore(best)) {
+                    best = t1.getLateStart();
                 }
             }
-            t.setLateFinish(best, publicDays);
+            t.setLateFinish(best, this.publicDays);
         }
         t.getDependencies().forEach((child) -> {
             lastMove(child, t);
@@ -175,8 +165,8 @@ public class Algorithm implements Serializable {
         int maxDuration = 0, dur;
         for (Task tDep : t.getDependencies()) {
             if ((dur = totalDuration(tDep)) > maxDuration) {
-                if (t.getStart().compareTo(tDep.getEnd()) <= 0) {
-                    t.setEarlyStart(tDep.getEnd(), publicDays);
+                if (t.getEarlyStart().compareTo(tDep.getEarlyEnd()) <= 0) {
+                    t.setEarlyStart(tDep.getEarlyEnd(), this.publicDays);
                 }
                 maxDuration = dur;
             }
@@ -200,18 +190,18 @@ public class Algorithm implements Serializable {
                 return t.getDuration();
             }
 
-            LocalDate best = parent.getStart();
+            LocalDate best = parent.getLateStart();
             Task tBest = parent;
             for (Task t1 : t.getParents()) {
-                if (t1.getStart().isBefore(best)) {
-                    best = t1.getStart();
+                if (t1.getLateStart().isBefore(best)) {
+                    best = t1.getLateStart();
                     tBest = t1;
                 }
             }
-            if (t.getEnd().compareTo(best) < 0) {
-                t.setLateFinish(best, publicDays);
+            if (t.getLateEnd().compareTo(best) < 0) {
+                t.setLateFinish(best, this.publicDays);
             } else {
-                tBest.setEarlyStart(t.getEnd(), publicDays);
+                tBest.setLateFinish(t.getLateEnd().plusDays(tBest.getDuration()), this.publicDays);
             }
 
             return t.getDuration();
@@ -220,8 +210,8 @@ public class Algorithm implements Serializable {
         int maxDuration = 0, dur;
         for (Task tDep : t.getDependencies()) {
             if ((dur = totalDurationLate(tDep, t)) > maxDuration) {
-                if (t != parent && t.getEnd().compareTo(parent.getStart()) <= 0) {
-                    t.setLateFinish(parent.getStart(), publicDays);
+                if (t != parent && t.getLateEnd().compareTo(parent.getLateStart()) <= 0) {
+                    t.setLateFinish(parent.getLateStart(), this.publicDays);
                 }
                 maxDuration = dur;
             }
@@ -236,16 +226,13 @@ public class Algorithm implements Serializable {
      *
      * @param name Il nome del
      * {@link com.acerbisgianluca.ganttproject.utilities.Task} da cercare.
-     * @param esef Se è vero il
-     * {@link com.acerbisgianluca.ganttproject.utilities.Task} viene cercato
-     * nella lista ES/EF, altrimenti in LS/LF.
      * @return Il {@link com.acerbisgianluca.ganttproject.utilities.Task}
      * trovato.
      * @throws TaskNotFoundException Viene lanciata se non viene trovato alcun
      * {@link com.acerbisgianluca.ganttproject.utilities.Task} con il nome dato.
      */
-    public Task getTaskByName(String name, boolean esef) throws TaskNotFoundException {
-        for (Task t : esef ? tasksESEF : tasksLSLF) {
+    public Task getTaskByName(String name) throws TaskNotFoundException {
+        for (Task t : this.tasks) {
             if (t.getName().equalsIgnoreCase(name)) {
                 return t;
             }
@@ -259,25 +246,15 @@ public class Algorithm implements Serializable {
      *
      * @return La lista ES/EF.
      */
-    public List<Task> getTasksESEF() {
-        return tasksESEF;
-    }
-
-    /**
-     * Recupera la lista usata per l'algoritmo LS/LF.
-     *
-     * @return La lista LS/LF.
-     */
-    public List<Task> getTasksLSLF() {
-        return tasksLSLF;
+    public List<Task> getTasks() {
+        return tasks;
     }
 
     /**
      * Svuota le 2 liste.
      */
     public void resetLists() {
-        tasksESEF.clear();
-        tasksLSLF.clear();
+        tasks.clear();
     }
 
     /**
@@ -286,29 +263,26 @@ public class Algorithm implements Serializable {
      * liste.
      */
     public void resetForRunning() {
-        for (int i = 0; i < tasksESEF.size(); i++) {
-            tasksESEF.get(i).resetToDefault(publicDays);
-            tasksLSLF.get(i).resetToDefault(publicDays);
-        }
+        this.tasks.forEach((t) -> {
+            t.resetToDefault(this.publicDays);
+        });
     }
 
     /**
      * Rimuove da entrambe le liste le 2 attività passate come argomento, una
      * per ogni lista.
      *
-     * @param tESEF L'attività da rimuovere dalla lista ESEF.
-     * @param tLSLF L'attività da rimuovere dalla lista LSLF.
+     * @param t
      */
-    public void removeFromLists(Task tESEF, Task tLSLF) {
-        tasksESEF.remove(tESEF);
-        tasksLSLF.remove(tLSLF);
+    public void removeFromLists(Task t) {
+        tasks.remove(t);
     }
     
-    public int getTotalEt() {
+    public double getTotalEt() {
         return totalEt;
     }
 
-    public int getTotalSd() {
+    public double getTotalSd() {
         return totalSd;
     }
 

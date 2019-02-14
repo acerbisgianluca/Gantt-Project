@@ -36,11 +36,19 @@ public class Task implements Serializable {
     /**
      * La data di inizio.
      */
-    private LocalDate start;
+    private LocalDate earlyStart;
     /**
      * La data di fine.
      */
-    private LocalDate end;
+    private LocalDate earlyEnd;
+    /**
+     * La data di inizio.
+     */
+    private LocalDate lateStart;
+    /**
+     * La data di fine.
+     */
+    private LocalDate lateEnd;
     /**
      * Indica se l'attività è critica o meno. In caso positivo non è possibile
      * spostarla.
@@ -49,18 +57,18 @@ public class Task implements Serializable {
     /**
      *
      */
-    private int et;
+    private double et;
     /**
      *
      */
-    private int sd;
+    private double sd;
     /**
      *
      */
     private int a;
     private int m;
     private int b;
-    private boolean advanced;
+    private final boolean advanced;
 
     /**
      * Crea un nuovo Task (attività).
@@ -72,12 +80,14 @@ public class Task implements Serializable {
      */
     public Task(String name, LocalDate start, int duration, List<DayOfWeek> list) {
         this.name = name;
-        this.start = start.plusDays(0);
+        this.earlyStart = start.plusDays(0);
+        this.lateStart = start.plusDays(0);
         this.defaultDate = start.plusDays(0);
         this.duration = duration;
         this.parents = new ArrayList<>();
         this.dependencies = new ArrayList<>();
-        this.end = add(start, duration - 1, list);
+        this.earlyEnd = add(start, duration - 1, list);
+        this.lateEnd = add(start, duration - 1, list);
         this.critica = false;
         this.et = duration;
         this.sd = 0;
@@ -86,37 +96,21 @@ public class Task implements Serializable {
 
     public Task(String name, LocalDate start, int a, int m, int b, List<DayOfWeek> list) {
         this.name = name;
-        this.start = start.plusDays(0);
+        this.earlyStart = start.plusDays(0);
+        this.lateStart = start.plusDays(0);
         this.defaultDate = start.plusDays(0);
         this.parents = new ArrayList<>();
         this.dependencies = new ArrayList<>();
-        this.end = add(start, duration - 1, list);
+        this.earlyEnd = add(start, duration - 1, list);
+        this.lateEnd = add(start, duration - 1, list);
         this.critica = false;
         this.a = a;
         this.m = m;
         this.b = b;
-        this.et = (this.a + (4 * this.m) + this.b) / 6;
-        this.sd = (this.b - this.a) / 6;
-        this.duration = this.et;
+        this.et = (this.a + (4 * this.m) + this.b) / 6.0;
+        this.sd = (this.b - this.a) / 6.0;
+        this.duration = (int) this.et;
         this.advanced = true;
-    }
-
-    /**
-     * Ritorna il nome dell'attività su cui è chiamato.
-     *
-     * @return Il nome dell'attività.
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Ritorna la data di inizio dell'attività su cui è chiamato.
-     *
-     * @return La data di inizio.
-     */
-    public LocalDate getStart() {
-        return start;
     }
 
     /**
@@ -128,8 +122,8 @@ public class Task implements Serializable {
      * @param publicDays
      */
     public void setEarlyStart(LocalDate start, List<DayOfWeek> publicDays) {
-        this.start = add(start, 1, publicDays);
-        this.end = add(this.start, duration - 1, publicDays);
+        this.earlyStart = add(start, 1, publicDays);
+        this.earlyEnd = add(this.earlyStart, duration - 1, publicDays);
     }
 
     /**
@@ -141,26 +135,8 @@ public class Task implements Serializable {
      * @param publicDays
      */
     public void setLateFinish(LocalDate finish, List<DayOfWeek> publicDays) {
-        this.end = add(finish, -1, publicDays);
-        this.start = add(this.end, -(duration - 1), publicDays);
-    }
-
-    /**
-     * Ritorna la data di fine dell'attività su cui è chiamato.
-     *
-     * @return La data di fine.
-     */
-    public LocalDate getEnd() {
-        return end;
-    }
-
-    /**
-     * Ritorna la durata dell'attività su cui è chiamato.
-     *
-     * @return La durata.
-     */
-    public int getDuration() {
-        return duration;
+        this.lateEnd = add(finish, -1, publicDays);
+        this.lateStart = add(this.lateEnd, -(duration - 1), publicDays);
     }
 
     /**
@@ -173,46 +149,12 @@ public class Task implements Serializable {
     }
 
     /**
-     * Ritorna la lista delle dipendenze dell'attività su cui è chiamato.
-     *
-     * @return La lista della attività che precedono l'attività stessa.
-     */
-    public List<Task> getDependencies() {
-        return dependencies;
-    }
-
-    /**
      * Aggiunge un'attività alla lista di quelle successive.
      *
      * @param t L'attività da aggiungere.
      */
     public void addParent(Task t) {
         parents.add(t);
-    }
-
-    /**
-     * Ritorna la lista delle attività successive all'attività su cui è
-     * chiamato.
-     *
-     * @return La lista delle attività successive.
-     */
-    public List<Task> getParents() {
-        return parents;
-    }
-
-    /**
-     * Ritorna una stringa con le principali informazioni dell'attività.
-     *
-     * @return Una stringa con tutte le informazioni.
-     */
-    @Override
-    public String toString() {
-        return "Task{"
-                + "name='" + this.name + '\''
-                + ", duration=" + this.duration + '\''
-                + ", start='" + this.start.toString() + '\''
-                + ", end=" + this.end.toString()
-                + '}';
     }
 
     /**
@@ -243,9 +185,11 @@ public class Task implements Serializable {
      */
     public void update(String name, LocalDate date, int duration, List<DayOfWeek> publicDays) {
         this.name = name;
-        this.start = date.plusDays(0);
+        this.earlyStart = date.plusDays(0);
+        this.lateStart = date.plusDays(0);
         this.defaultDate = date.plusDays(0);
-        this.end = add(start, duration - 1, publicDays);
+        this.earlyEnd = add(this.earlyStart, duration - 1, publicDays);
+        this.lateEnd = add(this.earlyStart, duration - 1, publicDays);
         this.et = duration;
         this.sd = 0;
         this.duration = duration;
@@ -263,15 +207,17 @@ public class Task implements Serializable {
      */
     public void update(String name, LocalDate date, int a, int m, int b, List<DayOfWeek> publicDays) {
         this.name = name;
-        this.start = date.plusDays(0);
+        this.earlyStart = date.plusDays(0);
+        this.lateStart = date.plusDays(0);
         this.defaultDate = date.plusDays(0);
-        this.end = add(start, duration - 1, publicDays);
+        this.earlyEnd = add(this.earlyStart, duration - 1, publicDays);
+        this.lateEnd = add(this.earlyStart, duration - 1, publicDays);
         this.a = a;
         this.m = m;
         this.b = b;
-        this.et = (this.a + (4 * this.m) + this.b) / 6;
-        this.sd = (this.b - this.a) / 6;
-        this.duration = this.et;
+        this.et = (this.a + (4 * this.m) + this.b) / 6.0;
+        this.sd = (this.b - this.a) / 6.0;
+        this.duration = (int) this.et;
     }
 
     /**
@@ -279,8 +225,10 @@ public class Task implements Serializable {
      * @param publicDays
      */
     public void resetToDefault(List<DayOfWeek> publicDays) {
-        this.start = this.defaultDate.plusDays(0);
-        this.end = add(this.start, duration - 1, publicDays);
+        this.earlyStart = this.defaultDate.plusDays(0);
+        this.lateStart = this.defaultDate.plusDays(0);
+        this.earlyEnd = add(this.earlyStart, duration - 1, publicDays);
+        this.lateEnd = add(this.earlyStart, duration - 1, publicDays);
         this.critica = false;
     }
     
@@ -305,33 +253,56 @@ public class Task implements Serializable {
         return start;
     }
 
-    /**
-     * Ritorna la data di inizio di default.
-     *
-     * @return La data di inizio di default.
-     */
+    public String getName() {
+        return name;
+    }
+
+    public int getDuration() {
+        return duration;
+    }
+
+    public List<Task> getParents() {
+        return parents;
+    }
+
+    public List<Task> getDependencies() {
+        return dependencies;
+    }
+
     public LocalDate getDefaultDate() {
         return defaultDate;
+    }
+
+    public LocalDate getEarlyStart() {
+        return earlyStart;
+    }
+
+    public LocalDate getEarlyEnd() {
+        return earlyEnd;
+    }
+
+    public LocalDate getLateStart() {
+        return lateStart;
+    }
+
+    public LocalDate getLateEnd() {
+        return lateEnd;
     }
 
     public boolean isCritica() {
         return critica;
     }
 
-    public void setCritica() {
-        this.critica = true;
+    public void setCritica(boolean critica) {
+        this.critica = critica;
     }
 
-    public int getEt() {
+    public double getEt() {
         return et;
     }
 
-    public int getSd() {
+    public double getSd() {
         return sd;
-    }
-
-    public boolean isAdvanced() {
-        return advanced;
     }
 
     public int getA() {
@@ -344,5 +315,9 @@ public class Task implements Serializable {
 
     public int getB() {
         return b;
+    }
+
+    public boolean isAdvanced() {
+        return advanced;
     }
 }
