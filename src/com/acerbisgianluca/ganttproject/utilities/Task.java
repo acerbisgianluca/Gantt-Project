@@ -68,28 +68,29 @@ public class Task implements Serializable {
      * @param name Il suo nome.
      * @param start La sua data di inizio.
      * @param duration La sua durata.
+     * @param list
      */
-    public Task(String name, LocalDate start, int duration) {
+    public Task(String name, LocalDate start, int duration, List<DayOfWeek> list) {
         this.name = name;
         this.start = start.plusDays(0);
         this.defaultDate = start.plusDays(0);
         this.duration = duration;
         this.parents = new ArrayList<>();
         this.dependencies = new ArrayList<>();
-        this.end = start.plusDays(duration - 1);
+        this.end = add(start, duration - 1, list);
         this.critica = false;
         this.et = duration;
         this.sd = 0;
         this.advanced = false;
     }
 
-    public Task(String name, LocalDate start, int a, int m, int b) {
+    public Task(String name, LocalDate start, int a, int m, int b, List<DayOfWeek> list) {
         this.name = name;
         this.start = start.plusDays(0);
         this.defaultDate = start.plusDays(0);
         this.parents = new ArrayList<>();
         this.dependencies = new ArrayList<>();
-        this.end = start.plusDays(duration - 1);
+        this.end = add(start, duration - 1, list);
         this.critica = false;
         this.a = a;
         this.m = m;
@@ -124,10 +125,11 @@ public class Task implements Serializable {
      * inizio + (durata - 1).
      *
      * @param start La data di inizio di un'altra attività.
+     * @param publicDays
      */
-    public void setEarlyStart(LocalDate start) {
-        this.start = start.plusDays(1);
-        this.end = this.start.plusDays(this.duration - 1);
+    public void setEarlyStart(LocalDate start, List<DayOfWeek> publicDays) {
+        this.start = add(start, 1, publicDays);
+        this.end = add(this.start, duration - 1, publicDays);
     }
 
     /**
@@ -136,10 +138,11 @@ public class Task implements Serializable {
      * - (durata - 1).
      *
      * @param finish La data di fine di un'altra attività.
+     * @param publicDays
      */
-    public void setLateFinish(LocalDate finish) {
-        this.end = finish.minusDays(1);
-        this.start = this.end.minusDays(this.duration - 1);
+    public void setLateFinish(LocalDate finish, List<DayOfWeek> publicDays) {
+        this.end = add(finish, -1, publicDays);
+        this.start = add(this.end, -(duration - 1), publicDays);
     }
 
     /**
@@ -236,12 +239,13 @@ public class Task implements Serializable {
      * @param name Il nome nuovo.
      * @param date La nuova data di inizio.
      * @param duration La nuova durata.
+     * @param publicDays
      */
-    public void update(String name, LocalDate date, int duration) {
+    public void update(String name, LocalDate date, int duration, List<DayOfWeek> publicDays) {
         this.name = name;
         this.start = date.plusDays(0);
         this.defaultDate = date.plusDays(0);
-        this.end = this.start.plusDays(duration - 1);
+        this.end = add(start, duration - 1, publicDays);
         this.et = duration;
         this.sd = 0;
         this.duration = duration;
@@ -255,12 +259,13 @@ public class Task implements Serializable {
      * @param a
      * @param m
      * @param b
+     * @param publicDays
      */
-    public void update(String name, LocalDate date, int a, int m, int b) {
+    public void update(String name, LocalDate date, int a, int m, int b, List<DayOfWeek> publicDays) {
         this.name = name;
         this.start = date.plusDays(0);
         this.defaultDate = date.plusDays(0);
-        this.end = this.start.plusDays(duration - 1);
+        this.end = add(start, duration - 1, publicDays);
         this.a = a;
         this.m = m;
         this.b = b;
@@ -271,11 +276,33 @@ public class Task implements Serializable {
 
     /**
      * Ripristina la data di inizio a quella di default.
+     * @param publicDays
      */
-    public void resetToDefault() {
+    public void resetToDefault(List<DayOfWeek> publicDays) {
         this.start = this.defaultDate.plusDays(0);
-        this.end = this.start.plusDays(duration - 1);
+        this.end = add(this.start, duration - 1, publicDays);
         this.critica = false;
+    }
+    
+    private LocalDate add(LocalDate start, int businessDay, List<DayOfWeek> list){
+        if(Math.abs(businessDay) < 1)
+            return start;
+        if(list.isEmpty())
+            return start.plusDays(businessDay);
+        
+        boolean positive = businessDay > 0;
+        int dur = Math.abs(businessDay);
+        int added = 0;
+        while(added < dur){
+            if(positive)
+                start = start.plusDays(1);
+            else
+                start = start.minusDays(1);
+            if(!list.contains(start.getDayOfWeek()))
+                ++added;
+        }
+        
+        return start;
     }
 
     /**

@@ -15,12 +15,15 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Function;
+import javafx.scene.control.DatePicker;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
@@ -127,6 +130,10 @@ public class App extends javax.swing.JFrame {
         lblB = new javax.swing.JLabel();
         spnB = new javax.swing.JSpinner();
         jSeparator1 = new javax.swing.JSeparator();
+        lblPublicHolidays = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        listPublicHolidays = new javax.swing.JList<>();
+        btnPublicDays = new javax.swing.JButton();
         menuBar = new javax.swing.JMenuBar();
         file = new javax.swing.JMenu();
         btnSave = new javax.swing.JMenuItem();
@@ -263,7 +270,7 @@ public class App extends javax.swing.JFrame {
                             .addComponent(btnDeleteTask)
                             .addComponent(btnDeleteAll)
                             .addComponent(toggleAdvanced))
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGap(0, 16, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelLayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(lblOutput, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
@@ -322,6 +329,23 @@ public class App extends javax.swing.JFrame {
 
         spnB.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
 
+        lblPublicHolidays.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        lblPublicHolidays.setText("Giorni festivi");
+
+        listPublicHolidays.setModel(new javax.swing.AbstractListModel<String>() {
+            String[] strings = { "Lunedì", "Martedì", "Mercoledì", "Giovedì", "Venerdì", "Sabato", "Domenica" };
+            public int getSize() { return strings.length; }
+            public String getElementAt(int i) { return strings[i]; }
+        });
+        jScrollPane1.setViewportView(listPublicHolidays);
+
+        btnPublicDays.setText("Imposta");
+        btnPublicDays.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPublicDaysActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panel2Layout = new javax.swing.GroupLayout(panel2);
         panel2.setLayout(panel2Layout);
         panel2Layout.setHorizontalGroup(
@@ -329,19 +353,27 @@ public class App extends javax.swing.JFrame {
             .addGroup(panel2Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
                     .addGroup(panel2Layout.createSequentialGroup()
-                        .addGroup(panel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(lblB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblA, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(lblM, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(panel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(spnB, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(spnM, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(spnA, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                .addContainerGap(38, Short.MAX_VALUE))
-            .addComponent(jSeparator1)
+                            .addComponent(jScrollPane1)
+                            .addGroup(panel2Layout.createSequentialGroup()
+                                .addGroup(panel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel1)
+                                    .addGroup(panel2Layout.createSequentialGroup()
+                                        .addGroup(panel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                                            .addComponent(lblB, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(lblA, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(lblM, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                        .addGroup(panel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(spnB, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(spnM, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(spnA, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(lblPublicHolidays)
+                                    .addComponent(btnPublicDays))
+                                .addGap(0, 28, Short.MAX_VALUE)))
+                        .addContainerGap())
+                    .addComponent(jSeparator1, javax.swing.GroupLayout.Alignment.TRAILING)))
         );
         panel2Layout.setVerticalGroup(
             panel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -362,6 +394,12 @@ public class App extends javax.swing.JFrame {
                     .addComponent(spnB, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblPublicHolidays)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnPublicDays)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -440,8 +478,8 @@ public class App extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(panel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
+                .addComponent(panel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(panel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -503,7 +541,13 @@ public class App extends javax.swing.JFrame {
             this.algorithm.getTasksESEF().forEach((t) -> {
                 listModel.addElement(t.getName());
             });
-
+            
+            int cont = 0;
+            int[] arr = new int[algorithm.getPublicDays().size()];
+            for(DayOfWeek day : algorithm.getPublicDays())
+                arr[cont++] = day.getValue() - 1;
+            listPublicHolidays.setSelectedIndices(arr);
+            
             showMessage("File caricato con successo.", false);
             realTimeRun();
         } catch (IOException | ClassNotFoundException ex) {
@@ -604,13 +648,13 @@ public class App extends javax.swing.JFrame {
                     int a = (int) spnA.getModel().getValue() < 1 ? 1 : (int) spnA.getModel().getValue();
                     int m = (int) spnM.getModel().getValue() < 1 ? 1 : (int) spnM.getModel().getValue();
                     int b = (int) spnB.getModel().getValue() < 1 ? 1 : (int) spnB.getModel().getValue();
-                    newLSLF.update(name, localDate, a, m, b);
-                    newESEF.update(name, localDate, a, m, b);
+                    newLSLF.update(name, localDate, a, m, b, algorithm.getPublicDays());
+                    newESEF.update(name, localDate, a, m, b, algorithm.getPublicDays());
                 } else {
                     int duration = (int) spnDuration.getModel().getValue();
                     duration = duration < 1 ? 1 : duration;
-                    newLSLF.update(name, localDate, duration);
-                    newESEF.update(name, localDate, duration);
+                    newLSLF.update(name, localDate, duration, algorithm.getPublicDays());
+                    newESEF.update(name, localDate, duration, algorithm.getPublicDays());
                 }
 
                 showResult();
@@ -653,13 +697,13 @@ public class App extends javax.swing.JFrame {
                 int a = (int) spnA.getModel().getValue() < 1 ? 1 : (int) spnA.getModel().getValue();
                 int m = (int) spnM.getModel().getValue() < 1 ? 1 : (int) spnM.getModel().getValue();
                 int b = (int) spnB.getModel().getValue() < 1 ? 1 : (int) spnB.getModel().getValue();
-                newESEF = new Task(name, localDate, a, m, b);
-                newLSLF = new Task(name, localDate, a, m, b);
+                newESEF = new Task(name, localDate, a, m, b, algorithm.getPublicDays());
+                newLSLF = new Task(name, localDate, a, m, b, algorithm.getPublicDays());
             } else {
                 int duration = (int) spnDuration.getModel().getValue();
                 duration = duration < 1 ? 1 : duration;
-                newESEF = new Task(name, localDate, duration);
-                newLSLF = new Task(name, localDate, duration);
+                newESEF = new Task(name, localDate, duration, algorithm.getPublicDays());
+                newLSLF = new Task(name, localDate, duration, algorithm.getPublicDays());
             }
 
             int[] dependenciesIds = listDependencies.getSelectedIndices();
@@ -850,6 +894,19 @@ public class App extends javax.swing.JFrame {
         toggleAdvanced();
     }//GEN-LAST:event_toggleAdvancedActionPerformed
 
+    private void btnPublicDaysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPublicDaysActionPerformed
+        List<DayOfWeek> list = new ArrayList<>();
+        for(int i : listPublicHolidays.getSelectedIndices()){
+            list.add(DayOfWeek.of(i + 1));
+        }
+        if(list.size() == 7){
+            showMessage("Non è possibile selezionare tutti i giorni.", true);
+            return;
+        }
+        algorithm.setPublicDays(list);
+        realTimeRun();
+    }//GEN-LAST:event_btnPublicDaysActionPerformed
+
     private void toggleAdvanced(){
         lblA.setEnabled(isAdvanced);
         lblM.setEnabled(isAdvanced);
@@ -857,6 +914,8 @@ public class App extends javax.swing.JFrame {
         spnA.setEnabled(isAdvanced);
         spnM.setEnabled(isAdvanced);
         spnB.setEnabled(isAdvanced);
+        btnPublicDays.setEnabled(isAdvanced);
+        listPublicHolidays.setEnabled(isAdvanced);
     }
     
     /**
@@ -905,6 +964,7 @@ public class App extends javax.swing.JFrame {
         spnA.setValue(1);
         spnM.setValue(1);
         spnB.setValue(1);
+        listPublicHolidays.clearSelection();
         spnDate.setValue(new Date());
         showMessage("", false);
         if (starting) {
@@ -1021,12 +1081,14 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JButton btnDeleteTask;
     private javax.swing.JMenuItem btnExit;
     private javax.swing.JMenuItem btnLoad;
+    private javax.swing.JButton btnPublicDays;
     private javax.swing.JMenuItem btnSave;
     private javax.swing.JMenuItem bugReport;
     private javax.swing.JMenu file;
     private javax.swing.JMenuItem github;
     private javax.swing.JMenu help;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JLabel lblA;
     private javax.swing.JLabel lblAddTask;
@@ -1036,8 +1098,10 @@ public class App extends javax.swing.JFrame {
     private javax.swing.JLabel lblM;
     private javax.swing.JLabel lblName;
     private javax.swing.JLabel lblOutput;
+    private javax.swing.JLabel lblPublicHolidays;
     private javax.swing.JLabel lblStartDate;
     private javax.swing.JList<String> listDependencies;
+    private javax.swing.JList<String> listPublicHolidays;
     private javax.swing.JScrollPane listScrollPane;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JPanel panel;

@@ -2,6 +2,7 @@ package com.acerbisgianluca.ganttproject.utilities;
 
 import com.acerbisgianluca.ganttproject.exceptions.TaskNotFoundException;
 import java.io.Serializable;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +40,7 @@ public class Algorithm implements Serializable {
 
     private int totalEt;
     private int totalSd;
+    private List<DayOfWeek> publicDays;
     
     /**
      * Crea un Algorithm ed inizializza tutte le liste.
@@ -48,6 +50,7 @@ public class Algorithm implements Serializable {
         tasksLSLF = new ArrayList<>();
         startDates = new ArrayList<>();
         endDates = new ArrayList<>();
+        publicDays = new ArrayList<>();
     }
 
     /**
@@ -110,9 +113,9 @@ public class Algorithm implements Serializable {
         // Sistemo le attività che potrebbero non essere posizionate in fondo
         tasksLSLF.forEach((t) -> {
             if (t.getParents().isEmpty() && t.getDependencies().isEmpty()) {
-                t.setLateFinish(lastDate.plusDays(1));
+                t.setLateFinish(lastDate.plusDays(1), publicDays);
             } else if (t.getParents().isEmpty()) {
-                t.setLateFinish(lastDate.plusDays(1));
+                t.setLateFinish(lastDate.plusDays(1), publicDays);
                 t.getDependencies().forEach((child) -> {
                     lastMove(child, t);
                 });
@@ -142,7 +145,7 @@ public class Algorithm implements Serializable {
 
     private void lastMove(Task t, Task parent) {
         if (t.getParents().size() == 1) {
-            t.setLateFinish(parent.getStart());
+            t.setLateFinish(parent.getStart(), publicDays);
         } else {
             LocalDate best = parent.getStart();
             for (Task t1 : t.getParents()) {
@@ -150,7 +153,7 @@ public class Algorithm implements Serializable {
                     best = t1.getStart();
                 }
             }
-            t.setLateFinish(best);
+            t.setLateFinish(best, publicDays);
         }
         t.getDependencies().forEach((child) -> {
             lastMove(child, t);
@@ -173,7 +176,7 @@ public class Algorithm implements Serializable {
         for (Task tDep : t.getDependencies()) {
             if ((dur = totalDuration(tDep)) > maxDuration) {
                 if (t.getStart().compareTo(tDep.getEnd()) <= 0) {
-                    t.setEarlyStart(tDep.getEnd());
+                    t.setEarlyStart(tDep.getEnd(), publicDays);
                 }
                 maxDuration = dur;
             }
@@ -206,9 +209,9 @@ public class Algorithm implements Serializable {
                 }
             }
             if (t.getEnd().compareTo(best) < 0) {
-                t.setLateFinish(best);
+                t.setLateFinish(best, publicDays);
             } else {
-                tBest.setEarlyStart(t.getEnd());
+                tBest.setEarlyStart(t.getEnd(), publicDays);
             }
 
             return t.getDuration();
@@ -218,7 +221,7 @@ public class Algorithm implements Serializable {
         for (Task tDep : t.getDependencies()) {
             if ((dur = totalDurationLate(tDep, t)) > maxDuration) {
                 if (t != parent && t.getEnd().compareTo(parent.getStart()) <= 0) {
-                    t.setLateFinish(parent.getStart());
+                    t.setLateFinish(parent.getStart(), publicDays);
                 }
                 maxDuration = dur;
             }
@@ -284,8 +287,8 @@ public class Algorithm implements Serializable {
      */
     public void resetForRunning() {
         for (int i = 0; i < tasksESEF.size(); i++) {
-            tasksESEF.get(i).resetToDefault();
-            tasksLSLF.get(i).resetToDefault();
+            tasksESEF.get(i).resetToDefault(publicDays);
+            tasksLSLF.get(i).resetToDefault(publicDays);
         }
     }
 
@@ -307,5 +310,13 @@ public class Algorithm implements Serializable {
 
     public int getTotalSd() {
         return totalSd;
+    }
+
+    public void setPublicDays(List<DayOfWeek> list) {
+        this.publicDays = list;
+    }
+
+    public List<DayOfWeek> getPublicDays() {
+        return publicDays;
     }
 }
