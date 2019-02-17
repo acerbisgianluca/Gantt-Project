@@ -33,17 +33,9 @@ public class Algorithm implements Serializable {
      * La lista di tutte le date finali.
      */
     private final List<LocalDate> endDates;
-    /**
-     * La durata stimata del percorso critico.
-     */
+
     private double totalEt;
-    /**
-     * La deviazione standard del percorso critico.
-     */
     private double totalSd;
-    /**
-     * La lista dei giorni festivi selezionati.
-     */
     private List<DayOfWeek> publicDays;
     
     /**
@@ -141,11 +133,6 @@ public class Algorithm implements Serializable {
         return (int) TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS) + 1;
     }
 
-    /**
-     * Sistema alcune attività con caratteristiche particolari non modificate dall'algoritmo principale.
-     * @param t L'attività iniziale.
-     * @param parent L'attività successiva. Se è il primo ciclo sarà uguale a t.
-     */
     private void lastMove(Task t, Task parent) {
         if (t.getParents().size() == 1) {
             t.setLateFinish(parent.getLateStart(), this.publicDays);
@@ -285,40 +272,24 @@ public class Algorithm implements Serializable {
      * Rimuove da entrambe le liste le 2 attività passate come argomento, una
      * per ogni lista.
      *
-     * @param t L'attività da rimuovere.
+     * @param t
      */
     public void removeFromLists(Task t) {
         tasks.remove(t);
     }
     
-    /**
-     * Ottiene la durata stimata del percorso critico.
-     * @return La durata stimata del percorso critico.
-     */
     public double getTotalEt() {
         return totalEt;
     }
 
-    /**
-     * Ottiene la deviazione standard del percorso critico.
-     * @return La deviazione standard del percorso critico.
-     */
     public double getTotalSd() {
         return totalSd;
     }
 
-    /**
-     * Imposta la lista dei giorni festivi.
-     * @param list I giorni festivi selezionati nella maschera.
-     */
     public void setPublicDays(List<DayOfWeek> list) {
         this.publicDays = list;
     }
 
-    /**
-     * Ottiene la lista dei giorni festivi.
-     * @return I giorni festivi.
-     */
     public List<DayOfWeek> getPublicDays() {
         return publicDays;
     }

@@ -70,9 +70,7 @@ public class App extends javax.swing.JFrame {
      * Filtro per le estensioni dei file.
      */
     private final FileNameExtensionFilter fileNameExtensionFilter;
-    /**
-     * Indica se l'aggiunta/modifica è in modalità avanzata.
-     */
+
     private boolean isAdvanced;
 
     /**
@@ -796,9 +794,9 @@ public class App extends javax.swing.JFrame {
             spnDuration.setValue((int) table.getValueAt(row, 1));
             Task t = algorithm.getTaskByName(name);
             spnDate.setValue(java.sql.Date.valueOf(t.getDefaultDate()));
-            spnA.setValue(t.getOptimisticDuration());
-            spnM.setValue(t.getProbableDuration());
-            spnB.setValue(t.getPessimisticDuration());
+            spnA.setValue(t.getA());
+            spnM.setValue(t.getM());
+            spnB.setValue(t.getB());
             List<Integer> selectedIndeces = new ArrayList<>();
             for (int i = 0; i < listModel.size(); i++) {
                 for (int j = 0; j < t.getDependencies().size(); j++) {
@@ -859,10 +857,6 @@ public class App extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnCheckUpdateActionPerformed
 
-    /**
-     * Abilita/disabilita le opzioni avanzate.
-     * @param evt L'evento generato al click sul pulsante per entrare in modalità avanzata.
-     */
     private void toggleAdvancedActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_toggleAdvancedActionPerformed
         if (!this.isAdvanced) {
             toggleAdvanced.setText("Mod. normale");
@@ -876,10 +870,6 @@ public class App extends javax.swing.JFrame {
         toggleAdvanced();
     }//GEN-LAST:event_toggleAdvancedActionPerformed
 
-    /**
-     * Imposta i giorni festivi selezionati.
-     * @param evt L'evento generato al click sul pulsante per impostare i giorni festivi. 
-     */
     private void btnPublicDaysActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPublicDaysActionPerformed
         List<DayOfWeek> list = new ArrayList<>();
         for (int i : listPublicHolidays.getSelectedIndices()) {
@@ -893,9 +883,6 @@ public class App extends javax.swing.JFrame {
         realTimeRun();
     }//GEN-LAST:event_btnPublicDaysActionPerformed
 
-    /**
-     * Abilita/disabilita in un unico colpo tutte le opzioni avanzate.
-     */
     private void toggleAdvanced() {
         lblA.setEnabled(isAdvanced);
         lblM.setEnabled(isAdvanced);
